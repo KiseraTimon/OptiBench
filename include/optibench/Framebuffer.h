@@ -37,7 +37,7 @@ namespace ob {
         void setPixel(int x, int y, Color c);
 
         // reads a point by getting the color of a specific pixel
-        void getPixel(int x, int y) const;
+        Color getPixel(int x, int y) const;
 
         // saves the canvas as a .bmp image
         bool saveBMP(const std::string& path) const;
