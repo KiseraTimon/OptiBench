@@ -7,4 +7,5 @@ add_executable(OptiBench main.cpp
         include/optibench/Color.h
         include/optibench/Vec2.h
         include/optibench/Ray.h
-        include/optibench/Framebuffer.h)
+        include/optibench/Framebuffer.h
+        src/Framebuffer.cpp)
