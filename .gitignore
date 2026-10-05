@@ -31,6 +31,7 @@
 *.exe
 *.out
 *.app
+build/
 
 # CLion
 .idea/
