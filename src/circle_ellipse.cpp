@@ -194,5 +194,17 @@ namespace ob {
             }
         }
     }
+
+
+    /**
+     * starts the helper function to calculate the outward facing direction (normal)
+     * of the circle
+     * @param center Vec2
+     * @param point Vec2
+     * @return Vec2
+     */
+    Vec2 circleNormal(const Vec2& center, const Vec2& point) {
+        return (point - center).normalized();
+    }
 }
 
