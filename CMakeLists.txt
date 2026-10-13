@@ -48,3 +48,7 @@ target_link_libraries(demo_ok_test PRIVATE optibench_lib)
 # 2. circle/ellipse demo executable
 add_executable(demo_circle_ellipse demos/circle_ellipse.cpp)
 target_link_libraries(demo_circle_ellipse PRIVATE optibench_lib)
+
+# 3. polygon clipping/filling demo executable
+add_executable(demo_clip_fill demos/clip_fill.cpp)
+target_link_libraries(demo_clip_fill PRIVATE optibench_lib)
