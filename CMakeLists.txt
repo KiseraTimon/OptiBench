@@ -30,7 +30,7 @@ target_link_libraries(optibench_tests PRIVATE optibench_lib)
 
 # Demo Target
 add_executable(optibench_demos
-        demos/demo_ok.cpp
+        demos/ok_test.cpp
         demos/circle_ellipse.cpp
 )
 target_link_libraries(optibench_demos PRIVATE optibench_lib)
