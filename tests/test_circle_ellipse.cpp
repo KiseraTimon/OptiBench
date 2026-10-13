@@ -67,4 +67,20 @@ int main() {
         // test validation: checking if the top/bottoms extremes were painted.
         CHECK(lit(fb, 50, 80)); CHECK(lit(fb, 50, 20));
     }
+
+
+    // test validating if the solid, filled-in circle is drawn correctly
+    {
+        // initializing an empty canvas
+        Framebuffer fb(101, 101, colors::Black);
+
+        // painting a solid white circle from the center with a radius of 30
+        fillCircle(fb, 50, 50, 30, colors::White);
+
+        // test validation: the exact center is painted
+        CHECK(lit(fb, 50, 50)); CHECK(lit(fb, 70, 50));
+
+        // test validation: pixels beyond the specified coords are not painted
+        CHECK(!lit(fb, 85, 50)); CHECK(!lit(fb, 5, 5));
+    }
 }
