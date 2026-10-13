@@ -143,5 +143,34 @@ namespace ob {
             }
         }
     }
+
+
+    void drawEllipse(Framebuffer &fb, int cx, int cy, int rx, int ry, Color c) {
+        if (rx <= 0 || ry <= 0) return;
+
+        const double rx2 = static_cast<double>(rx) * rx;
+        const double ry2 = static_cast<double>(ry) * ry;
+
+        int x = 0, y = ry;
+        double px = 0.0;
+        double py = 2.0 * rx2 * y;
+        double p = ry2 -rx2 + ry + 0.25 * rx2;
+
+        while (px < py) {
+            plot4(fb, cx, cy, x, y, c);
+
+            ++x;
+
+            if (p < 0) {
+                p += ry2 + px;
+            }
+
+            else {
+                --y;
+                py -= 2.0 * rx2;
+                p += ry2 + px -py;
+            }
+        }
+    }
 }
 
