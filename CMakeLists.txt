@@ -22,12 +22,15 @@ add_executable(OptiBench main.cpp)
 target_link_libraries(OptiBench PRIVATE optibench_lib)
 
 # Test Target
-add_executable(test_framebuffer tests/test_framebuffer.cpp)
-target_link_libraries(test_framebuffer PRIVATE optibench_lib)
+add_executable(optibench_tests
+        tests/test_framebuffer.cpp
+        tests/test_circle_ellipse.cpp
+)
+target_link_libraries(optibench_tests PRIVATE optibench_lib)
 
 # Demo Target
 add_executable(optibench_demos
-        demos/ok_test.cpp
+        demos/demo_ok.cpp
         demos/circle_ellipse.cpp
 )
-target_link_libraries(ok_test PRIVATE optibench_lib)
+target_link_libraries(optibench_demos PRIVATE optibench_lib)
