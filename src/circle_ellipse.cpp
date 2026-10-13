@@ -197,11 +197,77 @@ namespace ob {
 
 
     /**
+     * method describing the geometry and algebra used to determine
+     * the exact point a laser beam (ray) hits a circle. It borrows
+     * from the quadratic formula
+     *
+     * @param ray Ray
+     * @param center Vec2
+     * @param radius double
+     * @return Hit
+     */
+    Hit rayCircleIntersect(const Ray& ray, const Vec2& center , double radius) {
+        constexpr double eps = 1e-9;
+        Hit result;
+
+        /*
+         * Quadratic formula:
+         *      (-b)[+/-]sqrt((b^2)-4ac)
+         *      ---
+         *      2a
+         */
+
+        // calculating vector pointing from the circle's center to the ray's starting point
+        const Vec2 oc = ray.origin -center;
+
+        // the 'a' part of the quadratic formula
+        const double a = ray.direction.dot(ray.direction);
+
+        // half of 'b' in the quadratic formula
+        const double h = ray.direction.dot(oc);
+
+        // the 'c' part of the quadratic formula
+        const double k = oc.dot(oc) - radius * radius;
+
+        // the discriminant part of the quadratic formula (b^2 - 4ac)
+        const double discriminant = h * h - a * k;
+
+        // discriminant below 0 indicates the ray missed;
+        // a being 0 implies the ray lacks direction
+        if (discriminant < 0.0 || a == 0.0) return result;
+
+        const double sq = std::sqrt(discriminant);
+
+        // time/distance for first entry point into the circle (near crossing)
+        const double t0 = (-h - sq) / a;
+
+        // time/distance for first exit point out of the circle
+        const double t1 = (-h + sq) / a;
+
+        // correct hit distance
+        double t;
+
+        if (t0 > eps) t = t0;           // ray starts outside, hits near side
+        else if (t1 > eps) t = t1;      // ray starts inside, hits far side
+        else return result;             // circle is behind ray
+
+        // updating Hit object with collision data
+        result.hit = true;
+        result.t = t;
+        result.point = ray.origin + ray.direction * t;
+        result.normal = circleNormal(center, result.point);
+
+        return result;
+    }
+
+
+    /**
      * starts the helper function to calculate the outward facing direction (normal)
      * of the circle
+     *
      * @param center Vec2
-     * @param point Vec2
-     * @return Vec2
+     * @param point  Vec2
+     * @return  Vec2
      */
     Vec2 circleNormal(const Vec2& center, const Vec2& point) {
         return (point - center).normalized();
