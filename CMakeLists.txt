@@ -10,6 +10,7 @@ add_library(optibench_lib
         include/optibench/Vec2.h
         include/optibench/Ray.h
         include/optibench/Framebuffer.h
+        include/optibench/circle_ellipse.h
 )
 
 # Exposed include directory
@@ -24,5 +25,6 @@ add_executable(test_framebuffer tests/test_framebuffer.cpp)
 target_link_libraries(test_framebuffer PRIVATE optibench_lib)
 
 # Demo Target
-add_executable(ok_test demos/ok_test.cpp)
+add_executable(ok_test demos/ok_test.cpp
+        include/optibench/circle_ellipse.h)
 target_link_libraries(ok_test PRIVATE optibench_lib)
