@@ -29,6 +29,26 @@ namespace ob {
             // drawing outer top-right/top-left pixels
             fb.setPixel(cx + y, cy + x, c); fb.setPixel(cx - y, cy - x, c);
         }
+
+
+        /**
+         * helper method for plotting an ellipse
+         * ellipses are symmetric 4 ways (top/down; left/right)
+         *
+         * @param fb Framebuffer
+         * @param cx int
+         * @param cy int
+         * @param x int
+         * @param y int
+         * @param c Color
+         */
+        void plot4(Framebuffer& fb, int cx, int cy, int x, int y, Color c) {
+            // drawing the bottom-right/bottom-left pixels
+            fb.setPixel(cx + x, cy + y, c); fb.setPixel(cx - x, cy + y, c);
+
+            // drawing the top-right/top-left pixels
+            fb.setPixel(cx + x, cy - y, c); fb.setPixel(cx - x, cy - y, c);
+        }
     }
 }
 
