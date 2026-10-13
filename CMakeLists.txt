@@ -12,6 +12,8 @@ add_library(optibench_lib
         include/optibench/Framebuffer.h
         include/optibench/circle_ellipse.h
         src/circle_ellipse.cpp
+        include/optibench/clip_fill.h
+        src/clip_fill.cpp
 )
 target_include_directories(optibench_lib PUBLIC include) # exposed libraries
 
