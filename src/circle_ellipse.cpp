@@ -171,6 +171,28 @@ namespace ob {
                 p += ry2 + px -py;
             }
         }
+
+
+        // region 2
+        p = ry2 * (x + 0.5) * (x + 0.5) + rx2 * (y - 1.0) * (y -1.0) - rx2 * ry2;
+
+        while (y >= 0) {
+            plot4(fb, cx, cy, x, y, c);
+
+            --y;
+            py -= 2.0 * rx2;
+
+            if (p > 0) {
+                p += rx2 - py;
+            }
+
+            else {
+                ++x;
+
+                px += 2.0 * ry2;
+                p += rx2 - py + px;
+            }
+        }
     }
 }
 
