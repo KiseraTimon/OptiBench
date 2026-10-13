@@ -83,4 +83,41 @@ int main() {
         // test validation: pixels beyond the specified coords are not painted
         CHECK(!lit(fb, 85, 50)); CHECK(!lit(fb, 5, 5));
     }
+
+
+    // test validating if the ellipse is drawn correctly
+    {
+        // initializing an empty canvas
+        Framebuffer fb(201, 121, colors::Black);
+
+        // drawing a white ellipse (oval); width radius of 80, height radius of 40
+        drawEllipse(fb, 100, 60, 80, 40, colors::White);
+
+        // test validation: verifying the right/left extremes are painted
+        CHECK(lit(fb, 180, 60)); CHECK(lit(fb, 20, 60));
+
+        // test validation: verifying top/bottom extremes are painted
+        CHECK(lit(fb, 100, 100)); CHECK(lit(fb, 100, 20));
+
+        // looping through every row on the canvas.
+        for (int y = 0; y < 121; ++y) {
+            // looping through every column on the canvas.
+            for (int x = 0; x < 201; ++x) {
+                // for painted pixels:
+                if (lit(fb, x, y)) {
+
+                    /*
+                     * ellipse equation:
+                     *      x^2/a^2 + y^2/b^2 = 1
+                     */
+
+                    // calculating the mathematical ellipse equation for the pixel
+                    const double f = std::pow((x - 100.0) / 80.0, 2) + std::pow((y - 60.0) / 40.0, 2);
+
+                    // test validation: checking the math result is close to 1.0; implying the pixel lies on the correct curve
+                    CHECK(std::fabs(f - 1.0) < 0.1);
+                }
+            }
+        }
+    }
 }
