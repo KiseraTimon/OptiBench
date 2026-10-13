@@ -65,5 +65,45 @@ namespace ob {
             for (int x = x0; x <= x1; ++x) fb.setPixel(x, y, c);
         }
     }
+
+
+    /**
+     * method to draw a hollow circle outline
+     * @param fb Framebuffer
+     * @param cx int
+     * @param cy int
+     * @param r int
+     * @param c Color
+     */
+    void drawCircle(Framebuffer &fb, int cx, int cy, int r, Color c) {
+        // safety check preventing a negative radius
+        if (r < 0) return;
+
+        // initializing drawing from the top center of a circle
+        int x = 0, y = r;
+
+        // decision param; validates movement of the pen downwards
+        int p = 1 - r;
+
+        // drawing to the 45deg mark; an 1/8th of the circle
+        while (x <= y) {
+            // drawing the 8 mirrored dots
+            plot8(fb, cx, cy, x, y, c );
+
+            // moving the pen one pixel to the right
+            ++x;
+
+            // for negative decision values, the pen height is unchanged
+            if (p < 0) {
+                p += 2 * x + 1;
+            }
+
+            // otherwise, the pen drops one pixel down to match the curve of the circle
+            else {
+                --y;
+                p += 2 * (x - y) + 1;
+            }
+        }
+    }
 }
 
