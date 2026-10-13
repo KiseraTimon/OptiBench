@@ -49,6 +49,21 @@ namespace ob {
             // drawing the top-right/top-left pixels
             fb.setPixel(cx + x, cy - y, c); fb.setPixel(cx - x, cy - y, c);
         }
+
+
+        /**
+         * helper method to draw a span:
+         *      a horizontal line between two x coordinates
+         *
+         * @param fb Framebuffer
+         * @param x0 int
+         * @param x1 int
+         * @param y int
+         * @param c Color
+         */
+        void hspan(Framebuffer& fb, int x0, int x1, int y, Color c) {
+            for (int x = x0; x <= x1; ++x) fb.setPixel(x, y, c);
+        }
     }
 }
 
