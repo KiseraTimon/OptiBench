@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "optibench/circle_ellipse.h"
 
+
 // test definition
 #define CHECK(cond) do { if (!(cond)) { std::printf("FAIL %s:%d  %s\n", __FILE__, __LINE__, #cond); return 1; } } while (0)
 
@@ -120,4 +121,43 @@ int main() {
             }
         }
     }
+
+    // test validating the math that detects collisions between a laser and a circle
+    {
+
+        // shooting a ray moving directly right
+        Hit h = rayCircleIntersect({{-5, 0}, {1, 0}}, {0, 0}, 1.0);
+
+        // test validation: verifying the function correctly reported a collision.
+        CHECK(h.hit);
+
+        // test validation: verifying the distance travelled is as expected
+        CHECK(std::fabs(h.t - 4.0) < 1e-9);
+
+        // test validation: verifying the exact X coordinate of the hit is as expected.
+        CHECK(std::fabs(h.point.x + 1.0) < 1e-9);
+
+        // test validation: verifying the normal (bounce direction) is pointing straight left; right back at the laser.
+        CHECK(std::fabs(h.normal.x + 1.0) < 1e-9);
+
+        // test validation: verifying a laser shooting parallel but too high, missing the circle.
+        CHECK(!rayCircleIntersect({{-5, 2}, {1, 0}}, {0, 0}, 1.0).hit);
+
+        // test validation: verifying that shooting away from the circle correctly returns a miss.
+        CHECK(!rayCircleIntersect({{5, 0}, {1, 0}}, {0, 0}, 1.0).hit);
+
+        // Shooting a ray starting at exactly {0,0} (inside the circle) moving right.
+        Hit e = rayCircleIntersect({{0, 0}, {1, 0}}, {0, 0}, 1.0);
+
+        // test validation: verifying a hit is detected, verifies it hit the right-side wall at x=1.0, and verifies the normal points out to the right. (Restored missing '-').
+        CHECK(e.hit); CHECK(std::fabs(e.point.x - 1.0) < 1e-9); CHECK(e.normal.x > 0.99);
+
+
+        // test validation: verifying that a ray shot exactly at the top edge height successfully detects a hit.
+        CHECK(rayCircleIntersect({{-3, 1}, {1, 0}}, {0, 0}, 1.0).hit);
+    }
+
+    // message for successful tests
+    std::puts("test_circle_ellipse: PASS");
+    return 0;
 }
