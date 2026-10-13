@@ -28,7 +28,7 @@ namespace ob {
      */
 
     // method promise finding where light hits a circle
-    Hit rayCircleIntersect(const Vec2& center, const Vec2& point, double radius);
+    Hit rayCircleIntersect(const Ray& ray, const Vec2& center, double radius);
 
     // method calculating the perpendicular direction from the circle
     Vec2 circleNormal(const Vec2& center, const Vec2& point);
