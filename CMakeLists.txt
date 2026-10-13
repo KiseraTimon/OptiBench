@@ -34,6 +34,10 @@ target_link_libraries(test_framebuffer PRIVATE optibench_lib)
 add_executable(test_circle_ellipse tests/test_circle_ellipse.cpp)
 target_link_libraries(test_circle_ellipse PRIVATE optibench_lib)
 
+# 3. Polygon clipping/filling test executable
+add_executable(test_clip_fill tests/test_clip_fill.cpp)
+target_link_libraries(test_clip_fill PRIVATE optibench_lib)
+
 # ---
 
 # Demo Targets
