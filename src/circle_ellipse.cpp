@@ -105,5 +105,43 @@ namespace ob {
             }
         }
     }
+
+
+    /**
+     * paints the pixels bound by the circle outline for a fill effect
+     * @param fb Framebuffer
+     * @param cx int
+     * @param cy int
+     * @param r int
+     * @param c Color
+     */
+    void fillCircle(Framebuffer &fb, int cx, int cy, int r, Color c) {
+        // safety check preventing a negative radius
+        if (r < 0) return;
+
+        // initializing drawing from the top center of a circle
+        int x = 0, y = r;
+        int p = 1 - r;
+
+        // looped drawing to the 45deg angle
+        while (x <= y) {
+            // drawing 4 solid horizontal lines to fill the space
+            hspan(fb, cx - x, cx + x, cy + y, c);
+            hspan(fb, cx - x, cx + x, cy - y, c);
+            hspan(fb, cx - y, cx + y, cy + x, c);
+            hspan(fb, cx - y, cx + y, cy - x, c);
+
+            ++x;
+
+            if (p < 0) {
+                p += 2 * x + 1;
+            }
+
+            else {
+                --y;
+                p += 2 * (x - y) + 1;
+            }
+        }
+    }
 }
 
