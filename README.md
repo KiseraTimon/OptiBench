@@ -64,7 +64,7 @@ and a laser source and mirror coloured with flood/boundary fill. Run it from the
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
 - [x] Lines
-- [ ] Polygons
+- [x] Polygons
 - [x] Clipping/filling
 - [x] Circles/ellipses
 - [ ] Curves
