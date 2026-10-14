@@ -12,16 +12,21 @@ add_library(optibench_lib
         include/optibench/Ray.h
         include/optibench/Framebuffer.h
         include/optibench/Line.h
+        include/optibench/circle_ellipse.h
+        src/circle_ellipse.cpp
 )
+target_include_directories(optibench_lib PUBLIC include) # exposed libraries
 
-# Exposed include directory
-target_include_directories(optibench_lib PUBLIC include)
+# ---
 
 # Main Application Target
 add_executable(OptiBench main.cpp)
 target_link_libraries(OptiBench PRIVATE optibench_lib)
 
-# Test Target
+# ---
+
+# Test Targets
+# 1. Framebuffer test executable
 add_executable(test_framebuffer tests/test_framebuffer.cpp)
 target_link_libraries(test_framebuffer PRIVATE optibench_lib)
 
@@ -36,3 +41,17 @@ target_link_libraries(test_line PRIVATE optibench_lib)
 # Line Demo Target
 add_executable(line_demo demos/line_demo.cpp)
 target_link_libraries(line_demo PRIVATE optibench_lib)
+# 2. Circles/Ellipses test executable
+add_executable(test_circle_ellipse tests/test_circle_ellipse.cpp)
+target_link_libraries(test_circle_ellipse PRIVATE optibench_lib)
+
+# ---
+
+# Demo Targets
+# 1. ok test demo executable
+add_executable(demo_ok_test demos/ok_test.cpp)
+target_link_libraries(demo_ok_test PRIVATE optibench_lib)
+
+# 2. circle/ellipse demo executable
+add_executable(demo_circle_ellipse demos/circle_ellipse.cpp)
+target_link_libraries(demo_circle_ellipse PRIVATE optibench_lib)
