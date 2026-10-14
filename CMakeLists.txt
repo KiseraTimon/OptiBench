@@ -14,6 +14,8 @@ add_library(optibench_lib
         include/optibench/Line.h
         include/optibench/circle_ellipse.h
         src/circle_ellipse.cpp
+        include/optibench/clip_fill.h
+        src/clip_fill.cpp
 )
 target_include_directories(optibench_lib PUBLIC include) # exposed libraries
 
@@ -45,6 +47,10 @@ target_link_libraries(line_demo PRIVATE optibench_lib)
 add_executable(test_circle_ellipse tests/test_circle_ellipse.cpp)
 target_link_libraries(test_circle_ellipse PRIVATE optibench_lib)
 
+# 3. Polygon clipping/filling test executable
+add_executable(test_clip_fill tests/test_clip_fill.cpp)
+target_link_libraries(test_clip_fill PRIVATE optibench_lib)
+
 # ---
 
 # Demo Targets
@@ -55,3 +61,7 @@ target_link_libraries(demo_ok_test PRIVATE optibench_lib)
 # 2. circle/ellipse demo executable
 add_executable(demo_circle_ellipse demos/circle_ellipse.cpp)
 target_link_libraries(demo_circle_ellipse PRIVATE optibench_lib)
+
+# 3. polygon clipping/filling demo executable
+add_executable(demo_clip_fill demos/clip_fill.cpp)
+target_link_libraries(demo_clip_fill PRIVATE optibench_lib)
