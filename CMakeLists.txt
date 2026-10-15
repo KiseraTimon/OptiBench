@@ -45,9 +45,7 @@ target_link_libraries(demo_ok_test PRIVATE optibench_lib)
 add_executable(demo_circle_ellipse demos/circle_ellipse.cpp)
 target_link_libraries(demo_circle_ellipse PRIVATE optibench_lib)
 
-# 3. Polygon test executable
-add_executable(test_polygon tests/test_polygon.cpp)
-target_link_libraries(test_polygon PRIVATE optibench_lib)
+
 
 # 4. Polygon demo executable
 add_executable(polygon_demo demos/polygon_demo.cpp)
