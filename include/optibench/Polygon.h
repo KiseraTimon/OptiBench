@@ -11,7 +11,7 @@ namespace ob {
         std::vector<Vec2> vertices;
         
         //Return no. of vertices
-        std::size_t vertex_count() const;
+        std::size_t vertex_count() const { return vertices.size(); }
 
         //Return signed area of the polygon
         double signed_area() const;
