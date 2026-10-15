@@ -45,9 +45,5 @@ namespace ob {
 
         return total;
     }  
-      // Return the number of vertices in the polygon
-    std::size_t Polygon::vertex_count() const {
-        return vertices.size();
-    }
 
 }

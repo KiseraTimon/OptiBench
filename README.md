@@ -52,12 +52,21 @@ cmake --build build
 
 Running the okay test should instantiate the Framebuffer to make a gradient image. If this is successful, the program works okay
 
+### Polygon clipping & filling
+```bash
+./build/test_clip_fill.exe
+./build/demo_clip_fill.exe
+```
+The demo writes `output/clip_fill_demo.bmp`: a prism (scanline fill), a light beam clipped to the bench
+viewport and to the prism (Sutherland-Hodgman), laser rays trimmed to the viewport (Cohen-Sutherland),
+and a laser source and mirror coloured with flood/boundary fill. Run it from the repository root.
+
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
-- [ ] Lines
+- [x] Lines
 - [x] Polygons
-- [ ] Clipping/filling
-- [ ] Circles/ellipses
+- [x] Clipping/filling
+- [x] Circles/ellipses
 - [ ] Curves
 - [ ] Integrated demo scene
 
