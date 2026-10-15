@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 project(OptiBench CXX)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Core library containing shared headers and sources
 add_library(optibench_lib
@@ -63,6 +65,12 @@ target_link_libraries(demo_ok_test PRIVATE optibench_lib)
 # 2. circle/ellipse demo executable
 add_executable(demo_circle_ellipse demos/circle_ellipse.cpp)
 target_link_libraries(demo_circle_ellipse PRIVATE optibench_lib)
+
+
+
+# 4. Polygon demo executable
+add_executable(polygon_demo demos/polygon_demo.cpp)
+target_link_libraries(polygon_demo PRIVATE optibench_lib)
 
 # 3. Polygon test executable
 add_executable(test_polygon tests/test_polygon.cpp)
