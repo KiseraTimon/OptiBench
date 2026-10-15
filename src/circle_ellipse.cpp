@@ -27,7 +27,7 @@ namespace ob {
             fb.setPixel(cx + y, cy + x, c); fb.setPixel(cx - y, cy + x, c);
 
             // drawing outer top-right/top-left pixels
-            fb.setPixel(cx + y, cy + x, c); fb.setPixel(cx - y, cy - x, c);
+            fb.setPixel(cx + y, cy - x, c); fb.setPixel(cx - y, cy - x, c);
         }
 
 
@@ -75,7 +75,7 @@ namespace ob {
      * @param r int
      * @param c Color
      */
-    void drawCircle(Framebuffer &fb, int cx, int cy, int r, Color c) {
+    void drawCircle(Framebuffer& fb, int cx, int cy, int r, Color c) {
         // safety check preventing a negative radius
         if (r < 0) return;
 
@@ -88,7 +88,7 @@ namespace ob {
         // drawing to the 45deg mark; an 1/8th of the circle
         while (x <= y) {
             // drawing the 8 mirrored dots
-            plot8(fb, cx, cy, x, y, c );
+            plot8(fb, cx, cy, x, y, c);
 
             // moving the pen one pixel to the right
             ++x;
@@ -115,7 +115,7 @@ namespace ob {
      * @param r int
      * @param c Color
      */
-    void fillCircle(Framebuffer &fb, int cx, int cy, int r, Color c) {
+    void fillCircle(Framebuffer& fb, int cx, int cy, int r, Color c) {
         // safety check preventing a negative radius
         if (r < 0) return;
 
@@ -145,21 +145,23 @@ namespace ob {
     }
 
 
-    void drawEllipse(Framebuffer &fb, int cx, int cy, int rx, int ry, Color c) {
+    void drawEllipse(Framebuffer& fb, int cx, int cy, int rx, int ry, Color c) {
         if (rx <= 0 || ry <= 0) return;
 
         const double rx2 = static_cast<double>(rx) * rx;
         const double ry2 = static_cast<double>(ry) * ry;
 
         int x = 0, y = ry;
-        double px = 0.0;
-        double py = 2.0 * rx2 * y;
-        double p = ry2 -rx2 + ry + 0.25 * rx2;
+        double px = 0.0;            // loop condition parameter: 2(ry^2)x
+        double py = 2.0 * rx2 * y;  // loop condition parameter: 2(rx^2)y
+        double p = ry2 - rx2 * ry + 0.25 * rx2;
 
+        // region 1
         while (px < py) {
             plot4(fb, cx, cy, x, y, c);
 
             ++x;
+            px += 2.0 * ry2;
 
             if (p < 0) {
                 p += ry2 + px;
@@ -168,13 +170,16 @@ namespace ob {
             else {
                 --y;
                 py -= 2.0 * rx2;
-                p += ry2 + px -py;
+
+                // p += ry2 + px -py;
+                p += 2.0 + px - py + ry2;
             }
         }
 
 
         // region 2
-        p = ry2 * (x + 0.5) * (x + 0.5) + rx2 * (y - 1.0) * (y -1.0) - rx2 * ry2;
+        // p = ry2 * (x + 0.5) * (x + 0.5) + rx2 * (y - 1.0) * (y -1.0) - rx2 * ry2;
+        p = ry2 * (std::pow((x + 0.5), 2)) + rx2 * (std::pow((y - 1.0), 2)) - rx2 * ry2;
 
         while (y >= 0) {
             plot4(fb, cx, cy, x, y, c);
@@ -190,7 +195,7 @@ namespace ob {
                 ++x;
 
                 px += 2.0 * ry2;
-                p += rx2 - py + px;
+                p += px - py + rx2;
             }
         }
     }
