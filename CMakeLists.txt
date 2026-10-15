@@ -72,3 +72,6 @@ target_link_libraries(demo_clip_fill PRIVATE optibench_lib)
 # 5. Polygon demo executable
 add_executable(demo_polygon demos/polygon_demo.cpp)
 target_link_libraries(demo_polygon PRIVATE optibench_lib)
+
+add_executable(demo_integrated demos/integrated_demo.cpp)
+target_link_libraries(demo_integrated PRIVATE optibench_lib)
