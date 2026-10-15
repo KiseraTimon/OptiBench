@@ -55,7 +55,7 @@ Running the okay test should instantiate the Framebuffer to make a gradient imag
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
 - [ ] Lines
-- [ ] Polygons
+- [x] Polygons
 - [ ] Clipping/filling
 - [ ] Circles/ellipses
 - [ ] Curves
