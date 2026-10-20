@@ -143,6 +143,7 @@ ob_add_curves_test(test_curves_splines)
 ob_add_curves_test(test_curves_editor)
 ob_add_curves_test(test_curves_optics)
 ob_add_curves_test(test_curves_render)
+ob_add_curves_test(test_curves_nurbs)
 
 # curves demo: writes output/curves_demo.bmp (run from the repository root)
 add_executable(demo_curves demos/curves_demo.cpp)
