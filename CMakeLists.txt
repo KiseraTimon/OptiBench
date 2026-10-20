@@ -124,6 +124,7 @@ set(OB_CURVES_HEADERS
         include/optibench/curves/RayPath.h
         include/optibench/curves/CurveRender.h
         include/optibench/curves/Nurbs.h
+        include/optibench/curves/Curves.h
 )
 target_sources(optibench_lib PRIVATE ${OB_CURVES_SOURCES} ${OB_CURVES_HEADERS})
 set_source_files_properties(${OB_CURVES_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
