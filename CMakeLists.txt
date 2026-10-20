@@ -102,12 +102,14 @@ set(OB_CURVES_SOURCES
         src/curves/Bezier.cpp
         src/curves/Composite.cpp
         src/curves/CubicSpline.cpp
+        src/curves/Hermite.cpp
 )
 set(OB_CURVES_HEADERS
         include/optibench/curves/CurveMath.h
         include/optibench/curves/Bezier.h
         include/optibench/curves/Composite.h
         include/optibench/curves/CubicSpline.h
+        include/optibench/curves/Hermite.h
 )
 target_sources(optibench_lib PRIVATE ${OB_CURVES_SOURCES} ${OB_CURVES_HEADERS})
 set_source_files_properties(${OB_CURVES_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
