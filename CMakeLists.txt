@@ -75,3 +75,33 @@ target_link_libraries(demo_polygon PRIVATE optibench_lib)
 
 add_executable(demo_integrated demos/integrated_demo.cpp)
 target_link_libraries(demo_integrated PRIVATE optibench_lib)
+
+
+# =====================================================================================
+# Curves module (Bezier curves & splines) and ctest registration
+# Appended block: no lines above this block were modified.
+# Run every test with:  ctest --test-dir build --output-on-failure
+# =====================================================================================
+enable_testing()
+
+# existing module tests, run from the repository root so their output/ paths resolve
+foreach(ob_existing_test test_framebuffer test_line test_polygon test_clip_fill test_circle_ellipse)
+    add_test(NAME ${ob_existing_test} COMMAND ${ob_existing_test}
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endforeach()
+
+# strict warnings for the curves code only (other modules keep their current flags)
+set(OB_CURVES_WARNINGS "")
+if(NOT MSVC)
+    set(OB_CURVES_WARNINGS -Wall -Wextra -Wpedantic)
+endif()
+
+# adds one curves test executable from tests/curves/<name>.cpp and registers it with ctest
+function(ob_add_curves_test name)
+    add_executable(${name} tests/curves/${name}.cpp)
+    target_link_libraries(${name} PRIVATE optibench_lib)
+    target_compile_options(${name} PRIVATE ${OB_CURVES_WARNINGS})
+    add_test(NAME ${name} COMMAND ${name} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endfunction()
+
+ob_add_curves_test(test_curves_harness)
