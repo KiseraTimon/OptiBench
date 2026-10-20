@@ -92,6 +92,26 @@ namespace ob::curves {
         return box;
     }
 
+    std::vector<double> knotValues(std::span<const Vec2> points, double alpha) {
+        std::vector<double> t;
+        t.reserve(points.size());
+        if (points.empty()) return t;
+        t.push_back(0.0);
+        for (std::size_t i = 1; i < points.size(); ++i) {
+            const double chord = (points[i] - points[i - 1]).length();
+            t.push_back(t.back() + (alpha == 0.0 ? 1.0 : std::pow(chord, alpha)));
+        }
+        return t;
+    }
+
+    std::vector<Vec2> removeConsecutiveDuplicates(std::vector<Vec2> points, double tol) {
+        std::vector<Vec2> out;
+        out.reserve(points.size());
+        for (const Vec2& p : points)
+            if (out.empty() || (p - out.back()).length() > tol) out.push_back(p);
+        return out;
+    }
+
     double binomial(int n, int k) {
         if (k < 0 || k > n) return 0.0;
         k = std::min(k, n - k);

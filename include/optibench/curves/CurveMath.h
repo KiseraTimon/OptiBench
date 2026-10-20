@@ -71,6 +71,29 @@ namespace ob::curves {
     // linear interpolation between two points; t = 0 gives a, t = 1 gives b
     inline Vec2 lerp(Vec2 a, Vec2 b, double t) { return a + (b - a) * t; }
 
+    /**
+     * How parameter values (knots) are assigned to interpolated points: the knot gap between
+     * neighbours is |P(i+1) - Pi|^alpha with alpha = 0 (uniform), 0.5 (centripetal) or 1 (chordal).
+     * Centripetal avoids cusps and self-intersections within a segment (Yuksel et al. 2011);
+     * chordal follows the point spacing most closely.
+     */
+    enum class Parametrization { Uniform, Centripetal, Chordal };
+
+    // the exponent alpha for a parametrization
+    constexpr double alphaOf(Parametrization p) {
+        return p == Parametrization::Uniform ? 0.0 : p == Parametrization::Centripetal ? 0.5 : 1.0;
+    }
+
+    /**
+     * cumulative knot values t0 = 0, t(i+1) = ti + |P(i+1) - Pi|^alpha
+     * Coincident neighbours would create a zero gap; callers remove them first with
+     * removeConsecutiveDuplicates().
+     */
+    std::vector<double> knotValues(std::span<const Vec2> points, double alpha);
+
+    // drops points closer than tol to their predecessor (keeps the first of each run)
+    std::vector<Vec2> removeConsecutiveDuplicates(std::vector<Vec2> points, double tol = 1e-12);
+
     // binomial coefficient C(n, k) as a double; 0 when k is out of range
     double binomial(int n, int k);
 
