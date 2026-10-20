@@ -141,3 +141,8 @@ ob_add_curves_test(test_curves_splines)
 ob_add_curves_test(test_curves_editor)
 ob_add_curves_test(test_curves_optics)
 ob_add_curves_test(test_curves_render)
+
+# curves demo: writes output/curves_demo.bmp (run from the repository root)
+add_executable(demo_curves demos/curves_demo.cpp)
+target_link_libraries(demo_curves PRIVATE optibench_lib)
+target_compile_options(demo_curves PRIVATE ${OB_CURVES_WARNINGS})
