@@ -96,6 +96,16 @@ if(NOT MSVC)
     set(OB_CURVES_WARNINGS -Wall -Wextra -Wpedantic)
 endif()
 
+# curves sources are compiled into the shared library
+set(OB_CURVES_SOURCES
+        src/curves/CurveMath.cpp
+)
+set(OB_CURVES_HEADERS
+        include/optibench/curves/CurveMath.h
+)
+target_sources(optibench_lib PRIVATE ${OB_CURVES_SOURCES} ${OB_CURVES_HEADERS})
+set_source_files_properties(${OB_CURVES_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
+
 # adds one curves test executable from tests/curves/<name>.cpp and registers it with ctest
 function(ob_add_curves_test name)
     add_executable(${name} tests/curves/${name}.cpp)
