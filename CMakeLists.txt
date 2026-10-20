@@ -108,6 +108,7 @@ set(OB_CURVES_SOURCES
         src/curves/CurveEditor.cpp
         src/curves/OpticalCurve.cpp
         src/curves/RayPath.cpp
+        src/curves/CurveRender.cpp
 )
 set(OB_CURVES_HEADERS
         include/optibench/curves/CurveMath.h
@@ -120,6 +121,7 @@ set(OB_CURVES_HEADERS
         include/optibench/curves/CurveEditor.h
         include/optibench/curves/OpticalCurve.h
         include/optibench/curves/RayPath.h
+        include/optibench/curves/CurveRender.h
 )
 target_sources(optibench_lib PRIVATE ${OB_CURVES_SOURCES} ${OB_CURVES_HEADERS})
 set_source_files_properties(${OB_CURVES_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
