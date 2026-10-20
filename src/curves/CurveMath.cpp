@@ -145,25 +145,35 @@ namespace ob::curves {
         search.zeroTol = zeroTol;
         search.run(coeffs, 0.0, 1.0);
 
-        // polish leaf candidates with Newton's method (kept inside [0, 1])
+        // leaf candidates come in runs of neighbouring intervals (a tangency touches zero over a
+        // small range): group each run first, then polish only its best member with Newton
         const std::vector<double> deriv = derivative1D(coeffs);
         std::vector<double> all = search.exact;
-        for (double t : search.candidates) {
-            double best = t;
-            double bestVal = std::fabs(evalBernstein1D(coeffs, t));
-            for (int i = 0; i < 8; ++i) {
+        std::sort(search.candidates.begin(), search.candidates.end());
+        for (std::size_t i = 0; i < search.candidates.size();) {
+            std::size_t j = i;
+            double best = search.candidates[i];
+            double bestVal = std::fabs(evalBernstein1D(coeffs, best));
+            while (j + 1 < search.candidates.size() && search.candidates[j + 1] - search.candidates[j] <= kMergeGap) {
+                ++j;
+                const double v = std::fabs(evalBernstein1D(coeffs, search.candidates[j]));
+                if (v < bestVal) { best = search.candidates[j]; bestVal = v; }
+            }
+            const double lo = search.candidates[i] - kLeafWidth, hi = search.candidates[j] + kLeafWidth;
+            for (int iter = 0; iter < 8; ++iter) {
                 const double d = evalBernstein1D(deriv, best);
                 if (std::fabs(d) < 1e-300) break;
-                const double next = std::clamp(best - evalBernstein1D(coeffs, best) / d, 0.0, 1.0);
+                const double next = std::clamp(best - evalBernstein1D(coeffs, best) / d, std::max(lo, 0.0), std::min(hi, 1.0));
                 const double nextVal = std::fabs(evalBernstein1D(coeffs, next));
-                if (!(nextVal < bestVal) || std::fabs(next - t) > kMergeGap) break;
+                if (!(nextVal < bestVal)) break;
                 best = next;
                 bestVal = nextVal;
             }
             if (bestVal <= 2.0 * zeroTol) all.push_back(best);
+            i = j + 1;
         }
 
-        // merge clusters (a tangency produces several neighbouring candidates)
+        // merge roots found by both paths (an isolated root next to a candidate run)
         std::sort(all.begin(), all.end());
         std::vector<double> roots;
         for (std::size_t i = 0; i < all.size();) {
