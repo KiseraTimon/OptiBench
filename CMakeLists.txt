@@ -120,3 +120,4 @@ endfunction()
 
 ob_add_curves_test(test_curves_harness)
 ob_add_curves_test(test_curves_bezier)
+ob_add_curves_test(test_curves_composite)
