@@ -117,3 +117,4 @@ function(ob_add_curves_test name)
 endfunction()
 
 ob_add_curves_test(test_curves_harness)
+ob_add_curves_test(test_curves_bezier)
