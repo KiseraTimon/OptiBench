@@ -75,3 +75,78 @@ target_link_libraries(demo_polygon PRIVATE optibench_lib)
 
 add_executable(demo_integrated demos/integrated_demo.cpp)
 target_link_libraries(demo_integrated PRIVATE optibench_lib)
+
+
+# =====================================================================================
+# Curves module (Bezier curves & splines) and ctest registration
+# Appended block: no lines above this block were modified.
+# Run every test with:  ctest --test-dir build --output-on-failure
+# =====================================================================================
+enable_testing()
+
+# existing module tests, run from the repository root so their output/ paths resolve
+foreach(ob_existing_test test_framebuffer test_line test_polygon test_clip_fill test_circle_ellipse)
+    add_test(NAME ${ob_existing_test} COMMAND ${ob_existing_test}
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endforeach()
+
+# strict warnings for the curves code only (other modules keep their current flags)
+set(OB_CURVES_WARNINGS "")
+if(NOT MSVC)
+    set(OB_CURVES_WARNINGS -Wall -Wextra -Wpedantic)
+endif()
+
+# curves sources are compiled into the shared library
+set(OB_CURVES_SOURCES
+        src/curves/CurveMath.cpp
+        src/curves/Bezier.cpp
+        src/curves/Composite.cpp
+        src/curves/CubicSpline.cpp
+        src/curves/Hermite.cpp
+        src/curves/CatmullRom.cpp
+        src/curves/BSpline.cpp
+        src/curves/CurveEditor.cpp
+        src/curves/OpticalCurve.cpp
+        src/curves/RayPath.cpp
+        src/curves/CurveRender.cpp
+        src/curves/Nurbs.cpp
+)
+set(OB_CURVES_HEADERS
+        include/optibench/curves/CurveMath.h
+        include/optibench/curves/Bezier.h
+        include/optibench/curves/Composite.h
+        include/optibench/curves/CubicSpline.h
+        include/optibench/curves/Hermite.h
+        include/optibench/curves/CatmullRom.h
+        include/optibench/curves/BSpline.h
+        include/optibench/curves/CurveEditor.h
+        include/optibench/curves/OpticalCurve.h
+        include/optibench/curves/RayPath.h
+        include/optibench/curves/CurveRender.h
+        include/optibench/curves/Nurbs.h
+        include/optibench/curves/Curves.h
+)
+target_sources(optibench_lib PRIVATE ${OB_CURVES_SOURCES} ${OB_CURVES_HEADERS})
+set_source_files_properties(${OB_CURVES_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
+
+# adds one curves test executable from tests/curves/<name>.cpp and registers it with ctest
+function(ob_add_curves_test name)
+    add_executable(${name} tests/curves/${name}.cpp)
+    target_link_libraries(${name} PRIVATE optibench_lib)
+    target_compile_options(${name} PRIVATE ${OB_CURVES_WARNINGS})
+    add_test(NAME ${name} COMMAND ${name} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endfunction()
+
+ob_add_curves_test(test_curves_harness)
+ob_add_curves_test(test_curves_bezier)
+ob_add_curves_test(test_curves_composite)
+ob_add_curves_test(test_curves_splines)
+ob_add_curves_test(test_curves_editor)
+ob_add_curves_test(test_curves_optics)
+ob_add_curves_test(test_curves_render)
+ob_add_curves_test(test_curves_nurbs)
+
+# curves demo: writes output/curves_demo.bmp (run from the repository root)
+add_executable(demo_curves demos/curves_demo.cpp)
+target_link_libraries(demo_curves PRIVATE optibench_lib)
+target_compile_options(demo_curves PRIVATE ${OB_CURVES_WARNINGS})

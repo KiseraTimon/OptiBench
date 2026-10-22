@@ -28,7 +28,7 @@ bend through lenses and prisms, and eventually split into colours. Checkpoint 1 
 This project requires MSYS2's GCC and cmake to run. A comprehensive guide has been provided **[here](references/prerequisites_guide.pdf)**
 
 ## How to Compile and Run
-Requires a C++17 compiler and CMake 3.16+.
+Requires a C++20 compiler and CMake 3.20+.
 
 ```bash
 git clone https://github.com/KiseraTimon/OptiBench.git
@@ -53,6 +53,13 @@ cmake --build build
 ```
 
 Running the okay test should instantiate the Framebuffer to make a gradient image. If this is successful, the program works okay
+
+### Running all tests
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+Runs every module's test executable from the repository root.
 
 ### Polygon clipping & filling
 ```bash
@@ -108,13 +115,29 @@ and exiting out the other side as a white/yellow line.
 The scene also includes a yellow ellipse in the top right and a series of
 concentric grey circles in the bottom left
 
+### Curves
+```bash
+.\build\test_curves_bezier.exe  # test files: test_curves_*.exe (bezier, composite, splines, editor, optics, render, nurbs)
+```
+
+```bash
+.\build\demo_curves.exe  # demo file
+```
+
+The demo writes `output/curves_demo.bmp`: four panels showing the anatomy of a cubic Bézier curve
+(de Casteljau construction, tangent and normal, tight bounding box, adaptive flattening points), four
+splines through the same points (Catmull-Rom uniform and centripetal, natural cubic, clamped B-spline),
+parallel laser rays refracting through a lens whose faces are Bézier curves, and a parabolic mirror
+focusing rays above a gradient-index fibre that guides rays along smooth curved paths. Design notes,
+usage and references are in **[docs/curves.md](docs/curves.md)**.
+
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
 - [x] Lines
 - [x] Polygons
 - [x] Clipping/filling
 - [x] Circles/ellipses
-- [ ] Curves
+- [x] Curves
 - [x] Integrated demo scene
 
 ## Known Limitations
