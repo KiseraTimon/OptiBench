@@ -145,59 +145,105 @@ namespace ob {
     }
 
 
-    void drawEllipse(Framebuffer& fb, int cx, int cy, int rx, int ry, Color c) {
-        if (rx <= 0 || ry <= 0) return;
+    namespace {
+        /**
+         * walks the midpoint ellipse algorithm once and reports every (x, y) of the first quadrant
+         * to `visit`; drawEllipse and fillEllipse only differ in what they do with each point
+         *
+         * the curve's slope changes, so it is walked in two regions:
+         *      region 1: slope shallower than -1: step in x, decide whether y drops
+         *      region 2: slope steeper than -1: step in y, decide whether x grows
+         * the switch happens when 2(ry^2)x >= 2(rx^2)y, i.e. px >= py below
+         *
+         * @param rx int
+         * @param ry int
+         * @param visit callable taking (int x, int y)
+         */
+        template <typename Visit>
+        void walkEllipse(int rx, int ry, Visit visit) {
+            const double rx2 = static_cast<double>(rx) * rx;
+            const double ry2 = static_cast<double>(ry) * ry;
 
-        const double rx2 = static_cast<double>(rx) * rx;
-        const double ry2 = static_cast<double>(ry) * ry;
+            int x = 0, y = ry;
+            double px = 0.0;            // loop condition parameter: 2(ry^2)x
+            double py = 2.0 * rx2 * y;  // loop condition parameter: 2(rx^2)y
+            double p = ry2 - rx2 * ry + 0.25 * rx2;
 
-        int x = 0, y = ry;
-        double px = 0.0;            // loop condition parameter: 2(ry^2)x
-        double py = 2.0 * rx2 * y;  // loop condition parameter: 2(rx^2)y
-        double p = ry2 - rx2 * ry + 0.25 * rx2;
+            // region 1
+            while (px < py) {
+                visit(x, y);
 
-        // region 1
-        while (px < py) {
-            plot4(fb, cx, cy, x, y, c);
+                ++x;
+                px += 2.0 * ry2;
 
-            ++x;
-            px += 2.0 * ry2;
+                if (p < 0) {
+                    p += ry2 + px;
+                }
 
-            if (p < 0) {
-                p += ry2 + px;
+                else {
+                    --y;
+                    py -= 2.0 * rx2;
+                    p += ry2 + px - py;
+                }
             }
 
-            else {
+            // region 2
+            p = ry2 * ((x + 0.5) * (x + 0.5)) + rx2 * ((y - 1.0) * (y - 1.0)) - rx2 * ry2;
+
+            while (y >= 0) {
+                visit(x, y);
+
                 --y;
                 py -= 2.0 * rx2;
 
-                // p += ry2 + px -py;
-                p += 2.0 + px - py + ry2;
+                if (p > 0) {
+                    p += rx2 - py;
+                }
+
+                else {
+                    ++x;
+
+                    px += 2.0 * ry2;
+                    p += px - py + rx2;
+                }
             }
         }
+    }
 
 
-        // region 2
-        // p = ry2 * (x + 0.5) * (x + 0.5) + rx2 * (y - 1.0) * (y -1.0) - rx2 * ry2;
-        p = ry2 * (std::pow((x + 0.5), 2)) + rx2 * (std::pow((y - 1.0), 2)) - rx2 * ry2;
+    /**
+     * method to draw a hollow ellipse outline (midpoint ellipse algorithm)
+     * @param fb Framebuffer
+     * @param cx int
+     * @param cy int
+     * @param rx int: horizontal radius
+     * @param ry int: vertical radius
+     * @param c Color
+     */
+    void drawEllipse(Framebuffer& fb, int cx, int cy, int rx, int ry, Color c) {
+        if (rx <= 0 || ry <= 0) return;
 
-        while (y >= 0) {
-            plot4(fb, cx, cy, x, y, c);
+        walkEllipse(rx, ry, [&](int x, int y) { plot4(fb, cx, cy, x, y, c); });
+    }
 
-            --y;
-            py -= 2.0 * rx2;
 
-            if (p > 0) {
-                p += rx2 - py;
-            }
+    /**
+     * paints the pixels bound by the ellipse outline: every point the walker visits
+     * becomes a horizontal span, mirrored above and below the centre
+     * @param fb Framebuffer
+     * @param cx int
+     * @param cy int
+     * @param rx int
+     * @param ry int
+     * @param c Color
+     */
+    void fillEllipse(Framebuffer& fb, int cx, int cy, int rx, int ry, Color c) {
+        if (rx <= 0 || ry <= 0) return;
 
-            else {
-                ++x;
-
-                px += 2.0 * ry2;
-                p += px - py + rx2;
-            }
-        }
+        walkEllipse(rx, ry, [&](int x, int y) {
+            hspan(fb, cx - x, cx + x, cy + y, c);
+            hspan(fb, cx - x, cx + x, cy - y, c);
+        });
     }
 
 

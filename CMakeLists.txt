@@ -20,6 +20,24 @@ add_library(optibench_lib
         src/circle_ellipse.cpp
         include/optibench/clip_fill.h
         src/clip_fill.cpp
+
+        # scene architecture
+        include/optibench/Transform2D.h
+        include/optibench/Material.h
+        include/optibench/OpticalElement.h
+        include/optibench/Elements.h
+        include/optibench/Scene.h
+        include/optibench/Tracer.h
+        include/optibench/optics.h
+        src/Elements.cpp
+        src/Scene.cpp
+        src/Tracer.cpp
+        src/optics.cpp
+
+        # contracts for next modules
+        include/optibench/Mat3.h
+        include/optibench/raster_ops.h
+        include/optibench/Timeline.h
 )
 target_include_directories(optibench_lib PUBLIC include) # exposed libraries
 
@@ -50,6 +68,14 @@ target_link_libraries(test_clip_fill PRIVATE optibench_lib)
 # 5. Polygon test executable
 add_executable(test_polygon tests/test_polygon.cpp)
 target_link_libraries(test_polygon PRIVATE optibench_lib)
+
+# 6. Scene architecture test executable
+add_executable(test_scene ../tests/test_scene.cpp)
+target_link_libraries(test_scene PRIVATE optibench_lib)
+
+# 7. Ellipse additions test executable
+add_executable(test_ellipse_extras ../tests/test_ellipse_extras.cpp)
+target_link_libraries(test_ellipse_extras PRIVATE optibench_lib)
 
 # --- Demo Targets
 
