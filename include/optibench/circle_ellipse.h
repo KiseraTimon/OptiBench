@@ -21,6 +21,9 @@ namespace ob {
     // function promise to draw the outline of an ellipse
     void drawEllipse(Framebuffer& fb, int cx, int cy, int rx, int ry, Color c);
 
+    // function promise to draw a solid ellipse
+    void fillEllipse(Framebuffer& fb, int cx, int cy, int rx, int ry, Color c);
+
 
     /**
      * Geometry
