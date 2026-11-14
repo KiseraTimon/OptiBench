@@ -194,3 +194,5 @@ function(ob_add_transform_test name)
     target_link_libraries(${name} PRIVATE optibench_lib)
     add_test(NAME ${name} COMMAND ${name} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 endfunction()
+
+ob_add_transform_test(test_mat3)
