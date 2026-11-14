@@ -183,10 +183,14 @@ target_compile_options(demo_curves PRIVATE ${OB_CURVES_WARNINGS})
 # Appended block: no lines above this block were modified.
 # Run its tests with:  ctest --test-dir build -R "test_mat3|test_refraction" --output-on-failure
 # =====================================================================================
+set(OB_TRANSFORM_HEADERS
+        include/optibench/refraction.h
+)
 set(OB_TRANSFORM_SOURCES
         src/Mat3.cpp
+        src/refraction.cpp
 )
-target_sources(optibench_lib PRIVATE ${OB_TRANSFORM_SOURCES})
+target_sources(optibench_lib PRIVATE ${OB_TRANSFORM_SOURCES} ${OB_TRANSFORM_HEADERS})
 
 # adds one transform/optics test executable from tests/<name>.cpp and registers it with ctest
 function(ob_add_transform_test name)
