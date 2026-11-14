@@ -184,6 +184,17 @@ anim.animatePath("lens", MotionPath(bezier, 0.0, 4.0, CubicBezierEasing::easeInO
 anim.run(4.0, 15.0, [](const Framebuffer& front, const FrameInfo& f) { return front.saveBMP(...); });
 ```
 
+### Raster Operations & Sprites
+```bash
+.\build\demo_raster_sprites.exe
+```
+
+Raster operations provide clipped copy, keep-destination color-key transparency, RGB channel
+AND/OR/XOR, mask-based blitting, and alpha blending. `Sprite` and `SpriteSheet` draw owned RGB
+images and row-major animation frames into a framebuffer. Scene beam and screen-hit glows use the
+same alpha blend operation. Details and API examples are in **[docs/raster_sprites.md](docs/raster_sprites.md)**.
+The demo writes `output/raster_sprites_demo.bmp`.
+
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
 - [x] Lines
@@ -193,6 +204,7 @@ anim.run(4.0, 15.0, [](const Framebuffer& front, const FrameInfo& f) { return fr
 - [x] Curves
 - [x] Integrated demo scene
 - [x] Animation (keyframes, easing, Bezier easing & motion paths, double buffering)
+- [x] Raster operations, sprites, sprite sheets, and blended beam glow
 
 ## Known Limitations
 - 2D Only
