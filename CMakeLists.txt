@@ -70,11 +70,11 @@ add_executable(test_polygon tests/test_polygon.cpp)
 target_link_libraries(test_polygon PRIVATE optibench_lib)
 
 # 6. Scene architecture test executable
-add_executable(test_scene ../tests/test_scene.cpp)
+add_executable(test_scene tests/test_scene.cpp)
 target_link_libraries(test_scene PRIVATE optibench_lib)
 
 # 7. Ellipse additions test executable
-add_executable(test_ellipse_extras ../tests/test_ellipse_extras.cpp)
+add_executable(test_ellipse_extras tests/test_ellipse_extras.cpp)
 target_link_libraries(test_ellipse_extras PRIVATE optibench_lib)
 
 # --- Demo Targets
@@ -176,3 +176,28 @@ ob_add_curves_test(test_curves_nurbs)
 add_executable(demo_curves demos/curves_demo.cpp)
 target_link_libraries(demo_curves PRIVATE optibench_lib)
 target_compile_options(demo_curves PRIVATE ${OB_CURVES_WARNINGS})
+
+
+# =====================================================================================
+# Transform & optics maths module (Mat3 toolkit, Snell refraction with TIR fallback)
+# Appended block: no lines above this block were modified.
+# Run its tests with:  ctest --test-dir build -R "test_mat3|test_refraction" --output-on-failure
+# =====================================================================================
+set(OB_TRANSFORM_HEADERS
+        include/optibench/refraction.h
+)
+set(OB_TRANSFORM_SOURCES
+        src/Mat3.cpp
+        src/refraction.cpp
+)
+target_sources(optibench_lib PRIVATE ${OB_TRANSFORM_SOURCES} ${OB_TRANSFORM_HEADERS})
+
+# adds one transform/optics test executable from tests/<name>.cpp and registers it with ctest
+function(ob_add_transform_test name)
+    add_executable(${name} tests/${name}.cpp)
+    target_link_libraries(${name} PRIVATE optibench_lib)
+    add_test(NAME ${name} COMMAND ${name} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endfunction()
+
+ob_add_transform_test(test_mat3)
+ob_add_transform_test(test_refraction)

@@ -131,6 +131,21 @@ parallel laser rays refracting through a lens whose faces are Bézier curves, an
 focusing rays above a gradient-index fibre that guides rays along smooth curved paths. Design notes,
 usage and references are in **[docs/curves.md](docs/curves.md)**.
 
+### Transform & Optics Math
+```bash
+.\build\test_mat3.exe        # 3x3 homogeneous matrix toolkit
+```
+
+```bash
+.\build\test_refraction.exe  # Snell's law + total internal reflection
+```
+
+`Mat3` (`include/optibench/Mat3.h`) builds translate, scale, shear, rotate (about the origin or a pivot),
+reflect (across the axes or any line) and `composite(t, r, s)` = T·R·S matrices. `Mat3::fromTransform`
+gives the same matrix as an element's `Transform2D`, and `transformPoints` maps a whole polygon's vertices.
+`refraction.h` adds `criticalAngle`, `refractOrReflect` and `refractAtSegment`, which bend a ray by
+Snell's law and fall back to reflection beyond the critical angle.
+
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
 - [x] Lines

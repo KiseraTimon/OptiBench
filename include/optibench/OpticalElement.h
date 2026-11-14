@@ -2,7 +2,7 @@
 #include <string>
 
 #include "Framebuffer.h"
-#include "../../dump/include/optibench/Material.h"
+#include "Material.h"
 #include "Ray.h"
 #include "Transform2D.h"
 
