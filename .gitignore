@@ -39,3 +39,5 @@ build/
 
 # Dump files
 dump/
+# Animation frames (regenerate with demo_animation)
+output/frames/

@@ -146,6 +146,44 @@ gives the same matrix as an element's `Transform2D`, and `transformPoints` maps 
 `refraction.h` adds `criticalAngle`, `refractOrReflect` and `refractAtSegment`, which bend a ray by
 Snell's law and fall back to reflection beyond the critical angle.
 
+### Animation
+```bash
+.\build\test_timeline.exe   # lerp, easing (quadratic + cubic Bezier), keyframe tracks, motion paths, clock
+.\build\test_animator.exe   # double buffering and the animation loop driving a Scene
+```
+
+```bash
+.\build\demo_animation.exe  # demo file
+```
+
+The demo animates the periscope bench for 4 seconds at 15 fps and writes every frame to
+`output/frames/anim_####.bmp` (not committed), plus `output/animation_demo.bmp`, a contact sheet of six frames:
+the top mirror swings on keyframes with ease-in-out, the laser slides out and back, the lens glides along a
+cubic Bezier **motion path** (dim arc) timed by a cubic Bezier **easing curve** (graph bottom-right, the yellow dot
+is "now"), and the prism turns with an overshooting Bezier ease. The beam is re-traced every frame.
+Stitch the frames into a video with `ffmpeg -framerate 15 -i output/frames/anim_%04d.bmp -pix_fmt yuv420p output/animation.mp4`.
+Design notes, the math, usage and limitations are in **[docs/animation.md](docs/animation.md)**.
+
+The engine (`Timeline.h`, `DoubleBuffer.h`, `Animator.h`):
+
+| Technique | Where |
+|---|---|
+| Linear interpolation (tweening) | `lerp(a, b, u)` for numbers and `Vec2` |
+| Easing | `easeIn` (u²), `easeOut`, `easeInOut`, or any `double(double)` callable |
+| Bezier easing curves | `CubicBezierEasing(x1, y1, x2, y2)`: cubic through (0,0) and (1,1); solves x(s) = u by Newton + bisection, returns y(s). Presets `ease()`, `easeIn()`, `easeOut()`, `easeInOut()`, `backOut()` |
+| Keyframes | `Track` (doubles) / `Vec2Track` (points): `add(time, value, easing)`, `sample(t)`; the easing shapes the segment that starts at that keyframe, values clamp outside the keyframes |
+| Motion paths | `MotionPath(curve, t0, t1, easing, constantSpeed)`: moves along any Bezier / composite / Catmull-Rom curve, at constant speed via arc-length reparameterization; `heading(t)` gives the direction of travel |
+| Delta time | `Clock::advance(dt)`: animation is sampled at elapsed seconds, never at frame numbers; pause, speed, `loopTime`, `pingPongTime`; `RealTimeSource::lap()` for a live loop |
+| Double buffering | `DoubleBuffer`: draw into `back()`, `swap()` flips an index in O(1), only `front()` is shown or saved |
+| Animation loop | `Animator`: per step advance clock → sample bindings → `scene.render(back)` → overlays → swap; `run(duration, fps, present)` renders offline |
+
+```cpp
+Animator anim(scene, buffers);
+anim.animateRotation("mirrorTop", Track{}.add(0.0, a0, easeInOut).add(1.2, a1));
+anim.animatePath("lens", MotionPath(bezier, 0.0, 4.0, CubicBezierEasing::easeInOut()));
+anim.run(4.0, 15.0, [](const Framebuffer& front, const FrameInfo& f) { return front.saveBMP(...); });
+```
+
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
 - [x] Lines
@@ -154,6 +192,7 @@ Snell's law and fall back to reflection beyond the critical angle.
 - [x] Circles/ellipses
 - [x] Curves
 - [x] Integrated demo scene
+- [x] Animation (keyframes, easing, Bezier easing & motion paths, double buffering)
 
 ## Known Limitations
 - 2D Only

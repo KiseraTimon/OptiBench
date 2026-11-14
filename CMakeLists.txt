@@ -201,3 +201,39 @@ endfunction()
 
 ob_add_transform_test(test_mat3)
 ob_add_transform_test(test_refraction)
+
+
+# =====================================================================================
+# Animation module (delta time, keyframes, easing incl. cubic Bezier, motion paths,
+# double buffering, animation loop)
+# Appended block: no lines above this block were modified.
+# Run its tests with:  ctest --test-dir build -R "test_timeline|test_animator" --output-on-failure
+# =====================================================================================
+set(OB_ANIMATION_HEADERS
+        include/optibench/DoubleBuffer.h
+        include/optibench/Animator.h
+)
+set(OB_ANIMATION_SOURCES
+        src/Timeline.cpp
+        src/Animator.cpp
+)
+target_sources(optibench_lib PRIVATE ${OB_ANIMATION_SOURCES} ${OB_ANIMATION_HEADERS})
+
+# strict warnings for the animation code (same flags as the curves module)
+set_source_files_properties(${OB_ANIMATION_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
+
+# adds one animation test executable from tests/<name>.cpp and registers it with ctest
+function(ob_add_animation_test name)
+    add_executable(${name} tests/${name}.cpp)
+    target_link_libraries(${name} PRIVATE optibench_lib)
+    target_compile_options(${name} PRIVATE ${OB_CURVES_WARNINGS})
+    add_test(NAME ${name} COMMAND ${name} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endfunction()
+
+ob_add_animation_test(test_timeline)
+ob_add_animation_test(test_animator)
+
+# animation demo: writes output/frames/anim_*.bmp and output/animation_demo.bmp (run from the repository root)
+add_executable(demo_animation demos/animation_demo.cpp)
+target_link_libraries(demo_animation PRIVATE optibench_lib)
+target_compile_options(demo_animation PRIVATE ${OB_CURVES_WARNINGS})
