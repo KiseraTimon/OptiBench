@@ -176,3 +176,21 @@ ob_add_curves_test(test_curves_nurbs)
 add_executable(demo_curves demos/curves_demo.cpp)
 target_link_libraries(demo_curves PRIVATE optibench_lib)
 target_compile_options(demo_curves PRIVATE ${OB_CURVES_WARNINGS})
+
+
+# =====================================================================================
+# Transform & optics maths module (Mat3 toolkit, Snell refraction with TIR fallback)
+# Appended block: no lines above this block were modified.
+# Run its tests with:  ctest --test-dir build -R "test_mat3|test_refraction" --output-on-failure
+# =====================================================================================
+set(OB_TRANSFORM_SOURCES
+        src/Mat3.cpp
+)
+target_sources(optibench_lib PRIVATE ${OB_TRANSFORM_SOURCES})
+
+# adds one transform/optics test executable from tests/<name>.cpp and registers it with ctest
+function(ob_add_transform_test name)
+    add_executable(${name} tests/${name}.cpp)
+    target_link_libraries(${name} PRIVATE optibench_lib)
+    add_test(NAME ${name} COMMAND ${name} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endfunction()
