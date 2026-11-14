@@ -5,6 +5,7 @@
 
 #include "optibench/Tracer.h"
 #include "optibench/circle_ellipse.h"
+#include "optibench/raster_ops.h"
 
 namespace ob {
     namespace {
@@ -20,6 +21,24 @@ namespace ob {
             return {clampByte(c.r + (255 - c.r) * t), clampByte(c.g + (255 - c.g) * t), clampByte(c.b + (255 - c.b) * t)};
         }
 
+        void glowSegment(Framebuffer& fb, Vec2 a, Vec2 b, Color color, double radius, double strength) {
+            const double dx = b.x - a.x, dy = b.y - a.y;
+            const double length2 = dx * dx + dy * dy;
+            const int minX = std::max(0, static_cast<int>(std::floor(std::min(a.x, b.x) - radius)));
+            const int maxX = std::min(fb.width() - 1, static_cast<int>(std::ceil(std::max(a.x, b.x) + radius)));
+            const int minY = std::max(0, static_cast<int>(std::floor(std::min(a.y, b.y) - radius)));
+            const int maxY = std::min(fb.height() - 1, static_cast<int>(std::ceil(std::max(a.y, b.y) + radius)));
+            for (int y = minY; y <= maxY; ++y) for (int x = minX; x <= maxX; ++x) {
+                const double t = length2 > 0.0
+                    ? std::clamp(((x - a.x) * dx + (y - a.y) * dy) / length2, 0.0, 1.0) : 0.0;
+                const double distance = std::hypot(x - (a.x + t * dx), y - (a.y + t * dy));
+                if (distance < radius) {
+                    const double falloff = 1.0 - distance / radius;
+                    blendPixel(fb, x, y, color, strength * falloff * falloff);
+                }
+            }
+        }
+
         /**
          * draws one beam path:
          *      - the part Cohen-Sutherland removes (outside the viewport) is drawn faintly
@@ -31,7 +50,6 @@ namespace ob {
 
             for (const BeamSegment& s : path.segments) {
                 const Color core = s.inGlass ? towardsWhite(beam, 0.45) : beam;
-                const Color glow = shade(core, 0.32);
 
                 Vec2 a = s.a, b = s.b;
                 if (!clipLineCohenSutherland(a, b, view)) {
@@ -41,11 +59,7 @@ namespace ob {
                 if ((a - s.a).length() > 0.5) drawLineWu(fb, s.a, a, faint);
                 if ((b - s.b).length() > 0.5) drawLineWu(fb, b, s.b, faint);
 
-                if ((b - a).length() > 1.0) {
-                    const Vec2 off = (b - a).perp().normalized() * 3.0;
-                    const Polygon band{a - off, b - off, b + off, a + off};
-                    fillPolygon(fb, clipPolygonToRect(band, view), glow);
-                }
+                if ((b - a).length() > 1.0) glowSegment(fb, a, b, core, 7.0, 0.30);
                 drawLineWu(fb, a, b, core);
             }
 
@@ -53,8 +67,8 @@ namespace ob {
             if (path.hitScreen) {
                 const int x = static_cast<int>(std::lround(path.end.x));
                 const int y = static_cast<int>(std::lround(path.end.y));
-                for (int i = 0; i < 4; ++i)
-                    drawEllipse(fb, x, y, 3 + 3 * i, 8 + 9 * i, shade(beam, 1.0 - 0.2 * i));
+                glowSegment(fb, {static_cast<double>(x), static_cast<double>(y)},
+                            {static_cast<double>(x), static_cast<double>(y)}, beam, 18.0, 0.48);
             }
         }
     }

@@ -20,6 +20,9 @@ add_library(optibench_lib
         src/circle_ellipse.cpp
         include/optibench/clip_fill.h
         src/clip_fill.cpp
+        include/optibench/Sprite.h
+        src/Sprite.cpp
+        src/raster_ops.cpp
 
         # scene architecture
         include/optibench/Transform2D.h
@@ -73,6 +76,7 @@ target_link_libraries(test_polygon PRIVATE optibench_lib)
 add_executable(test_scene tests/test_scene.cpp)
 target_link_libraries(test_scene PRIVATE optibench_lib)
 
+
 # 7. Ellipse additions test executable
 add_executable(test_ellipse_extras tests/test_ellipse_extras.cpp)
 target_link_libraries(test_ellipse_extras PRIVATE optibench_lib)
@@ -101,6 +105,9 @@ target_link_libraries(demo_polygon PRIVATE optibench_lib)
 
 add_executable(demo_integrated demos/integrated_demo.cpp)
 target_link_libraries(demo_integrated PRIVATE optibench_lib)
+
+add_executable(demo_raster_sprites demos/raster_sprites_demo.cpp)
+target_link_libraries(demo_raster_sprites PRIVATE optibench_lib)
 
 
 # =====================================================================================
