@@ -200,3 +200,4 @@ function(ob_add_transform_test name)
 endfunction()
 
 ob_add_transform_test(test_mat3)
+ob_add_transform_test(test_refraction)
