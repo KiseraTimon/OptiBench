@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "../../dump/include/optibench/Elements.h"
+#include "Elements.h"
 #include "Framebuffer.h"
 #include "clip_fill.h"      // ClipRect
 

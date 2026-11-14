@@ -70,11 +70,11 @@ add_executable(test_polygon tests/test_polygon.cpp)
 target_link_libraries(test_polygon PRIVATE optibench_lib)
 
 # 6. Scene architecture test executable
-add_executable(test_scene ../tests/test_scene.cpp)
+add_executable(test_scene tests/test_scene.cpp)
 target_link_libraries(test_scene PRIVATE optibench_lib)
 
 # 7. Ellipse additions test executable
-add_executable(test_ellipse_extras ../tests/test_ellipse_extras.cpp)
+add_executable(test_ellipse_extras tests/test_ellipse_extras.cpp)
 target_link_libraries(test_ellipse_extras PRIVATE optibench_lib)
 
 # --- Demo Targets
