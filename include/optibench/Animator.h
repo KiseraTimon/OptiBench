@@ -60,6 +60,13 @@ namespace ob {
         // extra drawing on the back buffer after the scene is rendered, before the swap
         void addOverlay(Overlay overlay) { overlays_.push_back(std::move(overlay)); }
 
+        /**
+         * replaces the default scene.render(back) with a custom renderer (e.g. one with lighting and
+         * post-processing). It draws the whole back buffer; overlays still run after it.
+         * An empty function restores the default.
+         */
+        void setRenderer(Overlay renderer) { renderer_ = std::move(renderer); }
+
         // one loop iteration (see above); returns what was drawn, which is now buffers.front()
         FrameInfo step(double dt);
 
@@ -81,6 +88,7 @@ namespace ob {
         Clock clock_;
         std::vector<Update> updates_;
         std::vector<Overlay> overlays_;
+        Overlay renderer_;          // empty: scene_.render
         int frames_ = 0;
 
         OpticalElement& require(const std::string& name);

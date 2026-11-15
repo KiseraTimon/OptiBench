@@ -17,10 +17,10 @@ namespace ob {
         }
     }
 
-    BeamPath traceBeam(const Scene& scene, const Ray& start, int maxSteps) {
+    BeamPath traceBeam(const Scene& scene, const Ray& start, int maxSteps, double wavelengthNm) {
         BeamPath path;
         Ray ray{start.origin, start.direction.normalized()};
-        bool inGlass = false;
+        bool inGlass = scene.solidAt(start.origin) != nullptr;     // a beam may start inside glass
 
         for (int step = 0; step < maxSteps; ++step) {
             const Scene::Intersection hit = scene.nearestHit(ray);
@@ -57,8 +57,9 @@ namespace ob {
 
                 case SurfaceType::Glass: {
                     // outward normal + direction tell us whether the ray is going in or coming out
-                    const double n1 = entering ? 1.0 : m.refractiveIndex;
-                    const double n2 = entering ? m.refractiveIndex : 1.0;
+                    const double n = m.indexAt(wavelengthNm);
+                    const double n1 = entering ? 1.0 : n;
+                    const double n2 = entering ? n : 1.0;
                     Vec2 bent;
                     if (refract(d, facing, n1, n2, bent)) {
                         ev.kind = BeamEvent::Kind::Refract;

@@ -1,10 +1,12 @@
 #pragma once
 #include <string>
+#include <vector>
 
 #include "Framebuffer.h"
 #include "Material.h"
 #include "Ray.h"
 #include "Transform2D.h"
+#include "geometry/Primitives.h"    // geom::Aabb
 
 namespace ob {
     /**
@@ -36,5 +38,23 @@ namespace ob {
 
         // true for glass bodies that have an inside and an outside
         virtual bool isSolid() const { return false; }
+
+        /*
+         * Geometry queries (geometry module). Used by the scene for its broad phase, to find which
+         * solid a beam starts in, and to check that no two elements overlap.
+         */
+
+        /**
+         * world-space box that contains everything intersect() can hit.
+         * It must never be too small: Scene::nearestHit skips the element when a ray misses it.
+         * An empty box means "unknown": the element is then always tested.
+         */
+        virtual geom::Aabb bounds() const { return {}; }
+
+        // true if the world point p is inside (or on) the element's body
+        virtual bool contains(const Vec2& p) const { (void)p; return false; }
+
+        // the body's outline in world space, as a simple polygon (curved parts sampled); empty if none
+        virtual std::vector<Vec2> outline() const { return {}; }
     };
 }

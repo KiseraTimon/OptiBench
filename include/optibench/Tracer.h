@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+#include "Material.h"
 #include "Ray.h"
 #include "Vec2.h"
 
@@ -40,7 +41,14 @@ namespace ob {
      * (or bouncing on total internal reflection) until it lands on a screen, leaves the scene,
      * or runs out of steps.
      *
-     * Limitations: glass elements must not overlap, and the beam must start outside all glass.
+     * A beam may start inside glass (Scene::solidAt decides): it then leaves through the far face.
+     * Limitation: glass elements must not overlap (nested media are not modelled).
+     * Scene::overlappingPairs() reports any overlap, so a bench can be checked before tracing.
+     *
+     * wavelengthNm: the colour of the light. Glass refracts it with Material::indexAt(wavelengthNm),
+     * so dispersive glass (abbeNumber > 0) bends blue more than red. The default is the design
+     * wavelength, where every glass has exactly its refractiveIndex.
      */
-    BeamPath traceBeam(const Scene& scene, const Ray& start, int maxSteps = 32);
+    BeamPath traceBeam(const Scene& scene, const Ray& start, int maxSteps = 32,
+                       double wavelengthNm = Material::kDesignWavelength);
 }

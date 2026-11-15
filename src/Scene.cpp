@@ -5,6 +5,8 @@
 
 #include "optibench/Tracer.h"
 #include "optibench/circle_ellipse.h"
+#include "optibench/geometry/Intersect.h"
+#include "optibench/geometry/Overlap.h"
 #include "optibench/raster_ops.h"
 
 namespace ob {
@@ -87,6 +89,14 @@ namespace ob {
     Scene::Intersection Scene::nearestHit(const Ray& ray) const {
         Intersection best;
         for (const auto& e : elements_) {
+            // broad phase: a box the ray misses, or reaches only past the best hit, cannot hold a nearer hit.
+            // The box is grown by a hair so a hit exactly on its edge is never lost to rounding.
+            const geom::Aabb box = e->bounds();
+            if (!box.empty()) {
+                const auto span = geom::rayAabb(ray, geom::inflate(box, 1e-6));
+                if (!span || (best.element && span->tNear > best.hit.t)) continue;
+            }
+
             const Hit h = e->intersect(ray);
             if (h.hit && (!best.element || h.t < best.hit.t)) {
                 best.hit = h;
@@ -94,6 +104,28 @@ namespace ob {
             }
         }
         return best;
+    }
+
+    const OpticalElement* Scene::solidAt(const Vec2& p) const {
+        for (const auto& e : elements_) {
+            if (e->isSolid() && e->material.type == SurfaceType::Glass && e->contains(p)) return e.get();
+        }
+        return nullptr;
+    }
+
+    std::vector<std::pair<const OpticalElement*, const OpticalElement*>> Scene::overlappingPairs() const {
+        std::vector<std::pair<const OpticalElement*, const OpticalElement*>> pairs;
+        std::vector<std::vector<Vec2>> outlines;
+        outlines.reserve(elements_.size());
+        for (const auto& e : elements_) outlines.push_back(e->outline());
+
+        for (std::size_t i = 0; i < elements_.size(); ++i) {
+            for (std::size_t j = i + 1; j < elements_.size(); ++j) {
+                if (outlines[i].size() < 3 || outlines[j].size() < 3) continue;
+                if (geom::polygonsOverlap(outlines[i], outlines[j])) pairs.emplace_back(elements_[i].get(), elements_[j].get());
+            }
+        }
+        return pairs;
     }
 
     void Scene::render(Framebuffer& fb) const {
