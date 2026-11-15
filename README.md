@@ -195,6 +195,23 @@ images and row-major animation frames into a framebuffer. Scene beam and screen-
 same alpha blend operation. Details and API examples are in **[docs/raster_sprites.md](docs/raster_sprites.md)**.
 The demo writes `output/raster_sprites_demo.bmp`.
 
+### Geometry
+```bash
+.\build\test_geometry_polygon.exe  # test files: test_geometry_*.exe (primitives, polygon, intersect, overlap, lens, properties)
+```
+
+```bash
+.\build\demo_geometry.exe  # demo file
+```
+
+Shape queries for the bench (`ob::geom`, `include/optibench/geometry/`): robust orientation and segment
+intersection, area and centroid, convexity and simplicity checks, winding-number point location, signed distance,
+outward edge normals that are correct for concave shapes, convex hull, ear-clipping triangulation, ray vs box and ray vs
+concave polygon, SAT overlap with minimum translation vectors, and a thick biconvex / plano-convex `Lens` whose
+lensmaker focus is verified by tracing rays through it. Every function accepts both polygon types
+(`std::vector<Vec2>` directly, or `Polygon::vertices`). The demo writes `output/geometry_demo.bmp`. Design notes,
+the math and references are in **[docs/geometry.md](docs/geometry.md)**.
+
 ## Current Progress
 - [x] Project skeleton, build system, framebuffer
 - [x] Lines
@@ -205,6 +222,7 @@ The demo writes `output/raster_sprites_demo.bmp`.
 - [x] Integrated demo scene
 - [x] Animation (keyframes, easing, Bezier easing & motion paths, double buffering)
 - [x] Raster operations, sprites, sprite sheets, and blended beam glow
+- [x] Geometry (point location, hulls, triangulation, ray/polygon, SAT overlap, thick lens)
 
 ## Known Limitations
 - 2D Only
