@@ -41,3 +41,9 @@ build/
 dump/
 # Animation frames (regenerate with demo_animation)
 output/frames/
+
+# Other build folders (CMakePresets.json: build-debug, build-sanitize) and local presets
+build-*/
+CMakeUserPresets.json
+# Python caches from tools/
+__pycache__/
