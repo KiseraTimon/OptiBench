@@ -244,3 +244,30 @@ ob_add_animation_test(test_animator)
 add_executable(demo_animation demos/animation_demo.cpp)
 target_link_libraries(demo_animation PRIVATE optibench_lib)
 target_compile_options(demo_animation PRIVATE ${OB_CURVES_WARNINGS})
+
+
+# =====================================================================================
+# Geometry module (orientation, segment intersection, polygon queries, convex hull,
+# triangulation, ray/polygon and ray/box tests, SAT overlap, thick lens shape)
+# Appended block: no lines above this block were modified.
+# Run its tests with:  ctest --test-dir build -R test_geometry --output-on-failure
+# =====================================================================================
+set(OB_GEOMETRY_HEADERS
+        include/optibench/geometry/Primitives.h
+        include/optibench/geometry/PolygonOps.h
+        include/optibench/geometry/Intersect.h
+        include/optibench/geometry/Overlap.h
+        include/optibench/geometry/Lens.h
+        include/optibench/geometry/Geometry.h
+)
+set(OB_GEOMETRY_SOURCES
+        src/geometry/Primitives.cpp
+        src/geometry/PolygonOps.cpp
+        src/geometry/Intersect.cpp
+        src/geometry/Overlap.cpp
+        src/geometry/Lens.cpp
+)
+target_sources(optibench_lib PRIVATE ${OB_GEOMETRY_SOURCES} ${OB_GEOMETRY_HEADERS})
+
+# strict warnings for the geometry code (same flags as the curves module)
+set_source_files_properties(${OB_GEOMETRY_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
