@@ -223,15 +223,12 @@ n, m = vertex counts.
 
 ### Notes for teammates
 
-* **What the integration needs from this module.** Prisms can switch to `rayPolygon` and allow
-  concave shapes. Elements can report `bounds()` and `contains()`. That lets `Scene::nearestHit`
-  reject elements by box, `traceBeam` know whether a beam starts inside glass, and the scene detect
-  overlapping solids with `polygonsOverlap`.
-* `Polygon.h` declares `contains_point`, `centroid` and `draw`, but `Polygon.cpp` never defines them.
-  A call would fail to link. `geom::contains(p.vertices, q)` and `geom::centroid(p.vertices)` are the
-  implementations they need.
-* `ctest` registers `test_scene` and `test_ellipse_extras` nowhere, and `demos/scene_demo.cpp` has no
-  build target. All three build and pass by hand.
+* **Integrated into the scene.** Prisms intersect with `rayPolygon`, so concave prisms work. Elements
+  report `bounds()`, `contains()` and `outline()`. `Scene::nearestHit` rejects elements by box,
+  `traceBeam` knows when a beam starts inside glass, and `Scene::overlappingPairs()` finds overlapping
+  elements. `ThickLensElement` puts `Lens` on the bench. See [final_scene.md](final_scene.md).
+* `Polygon.h`'s `contains_point` and `centroid` (previously declared but never defined) are now
+  implemented with `geom::contains` and `geom::centroid`.
 
 ---
 

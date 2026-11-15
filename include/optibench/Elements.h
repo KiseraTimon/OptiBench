@@ -4,6 +4,8 @@
 #include "OpticalElement.h"
 #include "clip_fill.h"      // Polygon (= std::vector<Vec2>)
 #include "Line.h"           // Segment
+#include "curves/Bezier.h"  // CurvedMirrorElement's profile
+#include "geometry/Lens.h"  // ThickLensElement's shape
 
 namespace ob {
     /**
@@ -23,11 +25,17 @@ namespace ob {
         Hit intersect(const Ray& ray) const override;
         void draw(Framebuffer& fb) const override;
 
+        geom::Aabb bounds() const override;
+        bool contains(const Vec2& p) const override;
+        std::vector<Vec2> outline() const override { return bodyWorld(); }
+
+        double halfLength() const { return halfLength_; }
+        double thickness() const { return thickness_; }
+
     private:
         double halfLength_;
         double thickness_;
     };
-
 
     /**
      * A lens: a circle in local space, transformed into the world.
@@ -43,6 +51,10 @@ namespace ob {
         Hit intersect(const Ray& ray) const override;
         void draw(Framebuffer& fb) const override;
 
+        geom::Aabb bounds() const override;                 // exact box of the (rotated) ellipse
+        bool contains(const Vec2& p) const override;
+        std::vector<Vec2> outline() const override;         // 96-point polygon
+
         double radiusX() const;     // world half-width  (before any rotation)
         double radiusY() const;     // world half-height (before any rotation)
 
@@ -50,16 +62,17 @@ namespace ob {
         double radius_;
     };
 
-
     /**
-     * A prism: any CONVEX polygon given in local space (concave shapes are not supported).
+     * A prism: any SIMPLE polygon given in local space, convex or concave.
+     * Rays are intersected with geom::rayPolygon, whose outward normals come from the winding
+     * order, so notched and concave prisms refract correctly.
+     * @throws std::invalid_argument (constructor) if the polygon is not simple (geom::isSimple)
      */
     class PrismElement : public OpticalElement {
     public:
         PrismElement(std::string name, Transform2D transform, Polygon localVertices,
                      Material material = Material::glass(1.5));
 
-        // isosceles triangle centred on its centroid, apex pointing up on screen
         static Polygon triangle(double base, double height);
 
         Polygon worldVertices() const;
@@ -68,10 +81,74 @@ namespace ob {
         Hit intersect(const Ray& ray) const override;
         void draw(Framebuffer& fb) const override;
 
+        geom::Aabb bounds() const override;
+        bool contains(const Vec2& p) const override;
+        std::vector<Vec2> outline() const override { return worldVertices(); }
+
     private:
         Polygon local_;
     };
 
+    /**
+     * A real thick lens (geometry module): biconvex, plano-convex, edged or slab, with exact
+     * spherical faces. Local frame as in geom::Lens: optical axis along local +x, centred on
+     * the transform's position. Rays are intersected in local space and carried back.
+     *
+     * Keep the scale uniform for physically meaningful focal lengths: a uniform scale s scales
+     * every length, including the focal distances, by s.
+     */
+    class ThickLensElement : public OpticalElement {
+    public:
+        ThickLensElement(std::string name, Transform2D transform, geom::Lens shape,
+                         Material material = Material::glass(1.5));
+
+        const geom::Lens& shape() const { return shape_; }
+
+        bool isSolid() const override { return true; }
+        Hit intersect(const Ray& ray) const override;
+        void draw(Framebuffer& fb) const override;
+
+        geom::Aabb bounds() const override;
+        bool contains(const Vec2& p) const override;
+        std::vector<Vec2> outline() const override;
+
+        // world position of the back focus (lensmaker, using the material's refractive index)
+        Vec2 backFocus() const;
+
+    private:
+        geom::Lens shape_;
+    };
+
+    /**
+     * A curved mirror whose face is a Bezier curve (curves module), e.g. an exact parabola.
+     * Behaves like a flat mirror: hit.normal faces back towards the ray. The body (drawn, and
+     * used for overlap checks) is the face thickened towards local +x.
+     */
+    class CurvedMirrorElement : public OpticalElement {
+    public:
+        CurvedMirrorElement(std::string name, Transform2D transform, curves::Bezier localProfile,
+                            Material material = Material::mirror(), double thickness = 6.0);
+
+        /**
+         * local profile of a parabolic mirror: vertex at the origin, opening towards local -x,
+         * focus at (-focalLength, 0). Rays travelling along +x converge on the focus.
+         */
+        static curves::Bezier parabola(double focalLength, double halfAperture);
+
+        // the face in world space (Bezier curves are affine invariant: transform the control points)
+        curves::Bezier worldProfile() const;
+
+        Hit intersect(const Ray& ray) const override;
+        void draw(Framebuffer& fb) const override;
+
+        geom::Aabb bounds() const override;                 // control polygon box (convex hull property)
+        bool contains(const Vec2& p) const override;
+        std::vector<Vec2> outline() const override;
+
+    private:
+        curves::Bezier local_;
+        double thickness_;
+    };
 
     /**
      * A laser: emits one beam from its position along its local +x axis.
@@ -87,6 +164,14 @@ namespace ob {
 
         Hit intersect(const Ray&) const override { return Hit{}; }
         void draw(Framebuffer& fb) const override;
+
+        geom::Aabb bounds() const override;
+        bool contains(const Vec2& p) const override;
+        std::vector<Vec2> outline() const override { return bodyWorld(); }
+
+        Polygon bodyWorld() const;      // the housing behind the nose, in world space
+        double bodyLength() const { return bodyLength_; }
+        double bodyWidth() const { return bodyWidth_; }
 
     private:
         Color beamColor_;

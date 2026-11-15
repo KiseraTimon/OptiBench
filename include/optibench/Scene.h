@@ -48,6 +48,8 @@ namespace ob {
         // finds an element by name as a specific type (nullptr if missing or of another type)
         template <class T>
         T* findAs(const std::string& name) { return dynamic_cast<T*>(find(name)); }
+        template <class T>
+        const T* findAs(const std::string& name) const { return dynamic_cast<const T*>(find(name)); }
 
         const std::vector<std::unique_ptr<OpticalElement>>& elements() const { return elements_; }
         const std::vector<LaserSource*>& sources() const { return sources_; }
@@ -58,7 +60,21 @@ namespace ob {
             Hit hit;
             const OpticalElement* element = nullptr;
         };
+        /**
+         * nearest element the ray hits.
+         * Broad phase (geometry module): an element whose bounds() the ray misses, or enters only
+         * beyond the best hit so far, is skipped without calling its intersect().
+         */
         Intersection nearestHit(const Ray& ray) const;
+
+        // the first solid GLASS element containing p (where a beam starting at p is travelling), or nullptr
+        const OpticalElement* solidAt(const Vec2& p) const;
+
+        /**
+         * every pair of elements whose bodies overlap (geom::polygonsOverlap on their outlines;
+         * touching is allowed). The tracer assumes glass never overlaps, so a valid bench has none.
+         */
+        std::vector<std::pair<const OpticalElement*, const OpticalElement*>> overlappingPairs() const;
 
         // paints the whole scene: panel, grid, elements, beams
         void render(Framebuffer& fb) const;

@@ -42,7 +42,8 @@ namespace ob {
         const FrameInfo info{frames_, clock_.time(), applied};
 
         for (const Update& u : updates_) u(info.time);
-        scene_.render(buffers_.back());
+        if (renderer_) renderer_(buffers_.back(), info);
+        else scene_.render(buffers_.back());
         for (const Overlay& o : overlays_) o(buffers_.back(), info);
         buffers_.swap();
 
