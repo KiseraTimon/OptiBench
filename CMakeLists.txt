@@ -271,3 +271,18 @@ target_sources(optibench_lib PRIVATE ${OB_GEOMETRY_SOURCES} ${OB_GEOMETRY_HEADER
 
 # strict warnings for the geometry code (same flags as the curves module)
 set_source_files_properties(${OB_GEOMETRY_SOURCES} PROPERTIES COMPILE_OPTIONS "${OB_CURVES_WARNINGS}")
+
+# adds one geometry test executable from tests/geometry/<name>.cpp and registers it with ctest
+function(ob_add_geometry_test name)
+    add_executable(${name} tests/geometry/${name}.cpp)
+    target_link_libraries(${name} PRIVATE optibench_lib)
+    target_compile_options(${name} PRIVATE ${OB_CURVES_WARNINGS})
+    add_test(NAME ${name} COMMAND ${name} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endfunction()
+
+ob_add_geometry_test(test_geometry_primitives)
+ob_add_geometry_test(test_geometry_polygon)
+ob_add_geometry_test(test_geometry_intersect)
+ob_add_geometry_test(test_geometry_overlap)
+ob_add_geometry_test(test_geometry_lens)
+ob_add_geometry_test(test_geometry_properties)
