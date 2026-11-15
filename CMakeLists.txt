@@ -286,3 +286,8 @@ ob_add_geometry_test(test_geometry_intersect)
 ob_add_geometry_test(test_geometry_overlap)
 ob_add_geometry_test(test_geometry_lens)
 ob_add_geometry_test(test_geometry_properties)
+
+# geometry demo: writes output/geometry_demo.bmp (run from the repository root)
+add_executable(demo_geometry demos/geometry_demo.cpp)
+target_link_libraries(demo_geometry PRIVATE optibench_lib)
+target_compile_options(demo_geometry PRIVATE ${OB_CURVES_WARNINGS})
