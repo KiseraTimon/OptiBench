@@ -23,6 +23,8 @@ jobs:
             cxx: clang++
     steps:
       - uses: actions/checkout@v4
+      - name: Install X11 headers (for OptiBench_live)
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev
       - name: Configure
         run: cmake --preset release -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
       - name: Build
@@ -37,12 +39,20 @@ jobs:
         with:
           name: final-scene
           path: ci-output/*.bmp
+      - name: Upload the live viewer's self-test screenshots
+        if: matrix.compiler == 'gcc'
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-selftest
+          path: build/live_selftest/*.bmp
 
   sanitizers:
     name: Linux (AddressSanitizer + UBSan)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install X11 headers (for OptiBench_live)
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev
       - name: Configure
         run: cmake --preset sanitize
       - name: Build
