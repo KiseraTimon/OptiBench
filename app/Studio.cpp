@@ -12,6 +12,7 @@
 #include "optibench/geometry/Geometry.h"
 #include "optibench/raster_ops.h"
 #include "optibench/refraction.h"
+#include "optibench/render/Parallel.h"
 #include "optibench/render/Text.h"
 
 namespace ob::app {
@@ -378,6 +379,12 @@ namespace ob::app {
 
     void Studio::addLight(const Scene& scene, const std::vector<TracedRay>& rays, const FrameInfo& f) {
         light_.clear();
+        // the image is cut into horizontal bands, one per thread; each band draws every ray clipped to
+        // itself, so a pixel receives exactly the same additions, in the same order, as a serial loop
+        render::parallelFor(kH, [&](int yBegin, int yEnd) {
+        const ClipRect band{0.0, static_cast<double>(yBegin), kW - 1.0, yEnd - 1.0};
+        const ClipRect beamClip{kBench.xmin, std::max(kBench.ymin, band.ymin), kBench.xmax, std::min(kBench.ymax, band.ymax)};
+        // (a band outside the bench gets an empty beamClip: addBeam then draws nothing there, spots still do)
         for (const TracedRay& r : rays) {
             const bool white = r.source->kind == SourceSpec::Kind::WhiteLight;
             const bool bundle = r.source->kind == SourceSpec::Kind::Collimated;
@@ -388,14 +395,15 @@ namespace ob::app {
             for (const BeamSegment& seg : r.path.segments) {
                 Vec2 a = seg.a, b = seg.b;
                 if (!clipLineCohenSutherland(a, b, kBench)) continue;
-                light_.addBeam(a, b, core, sigma, &kBench);
+                light_.addBeam(a, b, core, sigma, &beamClip);
                 // scattered light: a soft halo, stronger inside glass (white rays get theirs from bloom)
-                if (seg.inGlass) light_.addBeam(a, b, core * 0.10f, 4.5, &kBench);
-                else if (!white) light_.addBeam(a, b, core * (bundle ? 0.012f : 0.03f), 3.0, &kBench);
+                if (seg.inGlass) light_.addBeam(a, b, core * 0.10f, 4.5, &beamClip);
+                else if (!white) light_.addBeam(a, b, core * (bundle ? 0.012f : 0.03f), 3.0, &beamClip);
             }
             // where it lands
-            if (r.path.hitScreen) light_.addSpot(r.path.end, core * (white ? 0.9f : 0.8f), white ? 3.5 : 4.0);
+            if (r.path.hitScreen) light_.addSpot(r.path.end, core * (white ? 0.9f : 0.8f), white ? 3.5 : 4.0, &band);
         }
+        });
 
         // indicator LEDs on the housings, and a photon glow riding each beam
         for (const LaserSource* src : scene.sources()) {

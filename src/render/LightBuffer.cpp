@@ -4,6 +4,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "optibench/render/Parallel.h"
+
 namespace ob::render {
     LightBuffer::LightBuffer(int width, int height) : w_(width), h_(height) {
         if (width <= 0 || height <= 0) throw std::invalid_argument("LightBuffer: size must be positive");
@@ -74,13 +76,17 @@ namespace ob::render {
         }
     }
 
-    void LightBuffer::addSpot(Vec2 centre, const LinearRgb& peak, double sigma) {
+    void LightBuffer::addSpot(Vec2 centre, const LinearRgb& peak, double sigma, const ClipRect* clip) {
         if (sigma <= 0.0) return;
         const double reach = 3.5 * sigma + 1.0, inv2s2 = 1.0 / (2.0 * sigma * sigma);
-        const int x0 = std::max(0, static_cast<int>(std::floor(centre.x - reach)));
-        const int x1 = std::min(w_ - 1, static_cast<int>(std::ceil(centre.x + reach)));
-        const int y0 = std::max(0, static_cast<int>(std::floor(centre.y - reach)));
-        const int y1 = std::min(h_ - 1, static_cast<int>(std::ceil(centre.y + reach)));
+        int x0 = std::max(0, static_cast<int>(std::floor(centre.x - reach)));
+        int x1 = std::min(w_ - 1, static_cast<int>(std::ceil(centre.x + reach)));
+        int y0 = std::max(0, static_cast<int>(std::floor(centre.y - reach)));
+        int y1 = std::min(h_ - 1, static_cast<int>(std::ceil(centre.y + reach)));
+        if (clip) {
+            x0 = std::max(x0, static_cast<int>(std::ceil(clip->xmin))); x1 = std::min(x1, static_cast<int>(std::floor(clip->xmax)));
+            y0 = std::max(y0, static_cast<int>(std::ceil(clip->ymin))); y1 = std::min(y1, static_cast<int>(std::floor(clip->ymax)));
+        }
         for (int y = y0; y <= y1; ++y)
             for (int x = x0; x <= x1; ++x) {
                 const double dx = x + 0.5 - centre.x, dy = y + 0.5 - centre.y;
@@ -97,9 +103,10 @@ namespace ob::render {
 
     // one sliding-window box pass per row: O(1) per pixel whatever the radius; edges are clamped
     void LightBuffer::boxBlurRows(int r) {
-        std::vector<LinearRgb> line(static_cast<std::size_t>(w_));
         const float inv = 1.0f / static_cast<float>(2 * r + 1);
-        for (int y = 0; y < h_; ++y) {
+        parallelFor(h_, [&](int yBegin, int yEnd) {
+        std::vector<LinearRgb> line(static_cast<std::size_t>(w_));
+        for (int y = yBegin; y < yEnd; ++y) {
             LinearRgb* row = &px_[static_cast<std::size_t>(y) * static_cast<std::size_t>(w_)];
             auto px = [&](int x) { return row[std::clamp(x, 0, w_ - 1)]; };
             LinearRgb acc;
@@ -111,12 +118,14 @@ namespace ob::render {
             }
             std::copy(line.begin(), line.end(), row);
         }
+        });
     }
 
     void LightBuffer::boxBlurColumns(int r) {
-        std::vector<LinearRgb> line(static_cast<std::size_t>(h_));
         const float inv = 1.0f / static_cast<float>(2 * r + 1);
-        for (int x = 0; x < w_; ++x) {
+        parallelFor(w_, [&](int xBegin, int xEnd) {
+        std::vector<LinearRgb> line(static_cast<std::size_t>(h_));
+        for (int x = xBegin; x < xEnd; ++x) {
             auto px = [&](int y) { return px_[static_cast<std::size_t>(std::clamp(y, 0, h_ - 1)) * static_cast<std::size_t>(w_) + static_cast<std::size_t>(x)]; };
             LinearRgb acc;
             for (int y = -r; y <= r; ++y) acc += px(y);
@@ -128,6 +137,7 @@ namespace ob::render {
             for (int y = 0; y < h_; ++y)
                 px_[static_cast<std::size_t>(y) * static_cast<std::size_t>(w_) + static_cast<std::size_t>(x)] = line[static_cast<std::size_t>(y)];
         }
+        });
     }
 
     void LightBuffer::blur(int radius) {
@@ -186,7 +196,9 @@ namespace ob::render {
 
         const int w = fb.width(), h = fb.height();
         const double cx = w / 2.0, cy = h / 2.0, rmax = std::sqrt(cx * cx + cy * cy);
-        for (int y = 0; y < h; ++y)
+        // rows are independent, so they are shared out between threads (same pixels as a serial loop)
+        parallelFor(h, [&](int yBegin, int yEnd) {
+        for (int y = yBegin; y < yEnd; ++y)
             for (int x = 0; x < w; ++x) {
                 const double hx = (x + 0.5) / 2.0 - 0.5, hy = (y + 0.5) / 2.0 - 0.5;
                 const LinearRgb hdr = (light.at(x, y) + glow.sampleBilinear(hx, hy) * look.bloomStrength) * look.exposure;
@@ -198,5 +210,6 @@ namespace ob::render {
                 }
                 fb.setPixel(x, y, toSrgb8(out));
             }
+        });
     }
 }

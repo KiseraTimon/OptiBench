@@ -34,8 +34,8 @@ namespace ob::render {
          */
         void addBeam(Vec2 a, Vec2 b, const LinearRgb& peak, double sigma, const ClipRect* clip = nullptr);
 
-        // a round Gaussian spot (a beam landing on a screen, a lamp)
-        void addSpot(Vec2 centre, const LinearRgb& peak, double sigma);
+        // a round Gaussian spot (a beam landing on a screen, a lamp); only pixels inside `clip` (if given)
+        void addSpot(Vec2 centre, const LinearRgb& peak, double sigma, const ClipRect* clip = nullptr);
 
         // total light, summed over the image (for tests: energy bookkeeping)
         LinearRgb total() const;
