@@ -384,3 +384,37 @@ add_test(NAME test_app_bench COMMAND test_app_bench WORKING_DIRECTORY ${CMAKE_SO
 add_test(NAME app_smoke
          COMMAND OptiBench --quiet --no-frames --duration 0.4 --out ${CMAKE_BINARY_DIR}/smoke
          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# =====================================================================================
+# OptiBench Live: the final scene in a window, in real time, editable with the mouse
+#   ./build/OptiBench_live        (app/live/: Xlib on Linux, Win32 GDI on Windows; no other libraries)
+# Skipped when no window system is found (e.g. a Linux machine without the X11 headers).
+# =====================================================================================
+option(OPTIBENCH_LIVE "Build the interactive viewer OptiBench_live" ON)
+if(OPTIBENCH_LIVE)
+    set(OB_LIVE_BACKEND "")
+    if(WIN32)
+        set(OB_LIVE_BACKEND app/live/Window_win32.cpp)
+    elseif(UNIX AND NOT APPLE)
+        find_package(X11 QUIET)
+        if(X11_FOUND)
+            set(OB_LIVE_BACKEND app/live/Window_x11.cpp)
+        else()
+            message(STATUS "OptiBench_live skipped: X11 development headers not found (e.g. apt install libx11-dev)")
+        endif()
+    endif()
+    if(OB_LIVE_BACKEND)
+        add_executable(OptiBench_live app/live/Live.cpp app/live/Window.h ${OB_LIVE_BACKEND})
+        target_link_libraries(OptiBench_live PRIVATE optibench_app)
+        target_include_directories(OptiBench_live PRIVATE app/live)
+        target_compile_options(OptiBench_live PRIVATE ${OB_CURVES_WARNINGS})
+        if(WIN32)
+            target_link_libraries(OptiBench_live PRIVATE user32 gdi32)
+        else()
+            target_link_libraries(OptiBench_live PRIVATE X11::X11)
+        endif()
+        # the interaction, checked headlessly (no display needed): scripted drags, wheel, path edits, keys
+        add_test(NAME live_selftest COMMAND OptiBench_live --self-test ${CMAKE_BINARY_DIR}/live_selftest
+                 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    endif()
+endif()
