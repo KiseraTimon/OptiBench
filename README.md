@@ -81,6 +81,33 @@ OptiBench 1.0.0: 61 frames (4 s at 15 fps)
 Presets: `release` (build/), `debug` (build-debug/) and `sanitize` (build-sanitize/: AddressSanitizer and
 UBSan; GCC or Clang, not MinGW). Presets need CMake 3.21+; the plain commands work with 3.20.
 
+### Live, interactive bench
+`OptiBench_live` opens the same scene in a window, animating in real time, and lets you edit it with the
+mouse. Every frame is re-traced, so the light follows immediately. The window is drawn with plain Xlib on Linux (WSLg
+works) and Win32 GDI on Windows, so there are still no third-party libraries. See [docs/live.md](docs/live.md).
+
+```bash
+./build/OptiBench_live            # Windows: .\build\OptiBench_live.exe
+```
+
+| Input | |
+|---|---|
+| left-drag | move an element (refused, in red, if it would overlap another one) |
+| wheel / right-drag | rotate the element under the pointer (Shift fine, Ctrl coarse) |
+| `P` | edit the lens's Bezier motion path: drag control points, Ctrl+click adds one, right-click removes one |
+| `Space`, `,` `.`, `-` `=` | play / pause, step one frame, slower / faster |
+| `Del`, `Tab`, arrows, `Q` `E` | hand an element back to the animation, select next, nudge, rotate |
+| `R`, `B`, `S`, `H`, `Esc` | reset, bounding boxes, screenshot to `output/live_###.bmp`, help, quit |
+
+Where it runs (no WSL needed):
+
+| Platform | Window | Notes |
+|---|---|---|
+| Windows (MSYS2 UCRT64, the team toolchain) | native Win32 | builds with the same `cmake` commands, nothing to install |
+| Linux | X11 (also XWayland) | needs the X11 headers: `sudo apt install libx11-dev`; without them the target is skipped |
+| WSL 2 on Windows 11 / recent Windows 10 | X11 through WSLg | as Linux |
+| macOS | not supported | everything else still builds; `OptiBench_live` is skipped |
+
 To make a video or a GIF of the frames, use
 `ffmpeg -framerate 15 -i output/frames/final_%04d.bmp -pix_fmt yuv420p output/final_scene.mp4`
 or, without ffmpeg, `python3 tools/make_gif.py` (needs Pillow).
